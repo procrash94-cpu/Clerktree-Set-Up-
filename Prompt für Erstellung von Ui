@@ -1,0 +1,131 @@
+I’m going to provide you with an HTML file and a Power Apps URL.
+Your task is to deploy the HTML application into Microsoft Power Apps so that it becomes a usable Power Apps app, accessible through the Power Apps environment.
+What I will provide
+The HTML file/application.
+The Power Apps URL.
+Access to my Microsoft account through device-code authentication when required.
+Your responsibilities
+Inspect the HTML application and understand how it works.
+Determine the best way to convert/integrate the HTML application into Power Apps while preserving its functionality and UI as closely as possible.
+Use the Power Apps/Power Platform CLI and other appropriate tooling where necessary.
+Authenticate using the device-code flow when prompted; I will complete the login on my side.
+Create/configure the required Power Apps app and supporting components.
+Import, package, deploy, or otherwise integrate the HTML application into Power Apps using the appropriate supported approach.
+Configure any required resources, connections, environment settings, permissions, or dependencies.
+Make sure the resulting application can actually be opened and used from the Power Apps interface—not merely that the source files have been uploaded somewhere.
+Test the deployed app and fix any deployment, rendering, navigation, JavaScript, asset-loading, or configuration issues you encounter.
+If the HTML cannot be embedded directly because of Power Apps platform limitations, determine the closest viable architecture (for example, a custom page, web resource, PCF control, or another supported Power Platform approach) and implement it rather than stopping at the limitation.
+Important requirements
+Do not just explain how I can do it. Perform the deployment yourself using the available CLI/tools.
+You may use my authenticated account after I complete the device-code login.
+Do not make assumptions about the Power Apps environment; inspect the provided environment and determine the correct app type and deployment method.
+Preserve the original HTML application's appearance and functionality as much as technically possible.
+If something fails, diagnose the actual error and continue troubleshooting rather than simply reporting the failure.
+At the end, give me:
+The name/type of the Power Apps app created.
+What was deployed and how it was integrated.
+Any important limitations or changes made to the original HTML.
+The final Power Apps URL or app identifier needed to open it.
+A concise summary of any remaining issues, if there are any.
+I will provide the HTML file and Power Apps link next. Start by inspecting the files and environment, then proceed with the deployment.
+ 
+ 
+ 
+I’m going to provide you with an HTML file/application and a Power Apps URL.
+Your task is to fully deploy the HTML application into Microsoft Power Apps and make it usable as an actual Power Apps application. Do not merely explain the process or give me instructions. Perform the work yourself using the available tools, CLI, Power Platform CLI, and Microsoft APIs/connectors as appropriate.
+Files and access I will provide
+The HTML file/application.
+The Power Apps URL.
+Microsoft account access through device-code authentication when required.
+Microsoft account to use
+Use park@gluth.eu to access Power Apps.
+This is the account that has the required Power Apps/Power Platform access.
+If authentication requires a device code:
+Initiate the device-code authentication yourself.
+Give me the device code only when the authentication step requires my interaction.
+I will complete the login.
+After authentication succeeds, continue the entire process yourself.
+Do not switch to another Microsoft account.
+Your task
+Start by inspecting the provided HTML application and the Power Apps environment.
+You must independently determine:
+Which Power Platform environment the provided Power Apps URL belongs to.
+Which environment I have access to.
+The correct Power Apps application type for this use case.
+Whether the HTML can be integrated directly or needs to be packaged/converter into another supported Power Platform component.
+What dependencies, connectors, resources, permissions, or configuration are required.
+Do not ask me which environment to use, which app type to create, or how the HTML should be integrated. Inspect the account and environment and make those decisions yourself.
+Deployment requirements
+Use the appropriate tooling, including the Power Platform CLI (pac), Microsoft APIs, Power Apps tooling, or other available methods where necessary.
+Your workflow should include:
+Inspect the HTML source, JavaScript, CSS, assets, dependencies, routing, and functionality.
+Inspect the authenticated Power Platform account and available environments.
+Identify the correct target environment.
+Determine the technically best supported way to run the HTML application inside Power Apps.
+Create the required Power Apps application/components.
+Package and deploy the HTML/application into the selected environment.
+Configure all required resources and dependencies.
+Configure permissions and ownership where required.
+Ensure the application is actually accessible through Power Apps.
+Open/test the deployed application.
+Verify that the UI renders correctly.
+Verify that JavaScript functionality works.
+Verify navigation, buttons, forms, API calls, assets, and other interactive functionality.
+Diagnose and fix any deployment or runtime errors.
+Continue troubleshooting until the application is working as closely as possible to the original HTML.
+If direct HTML embedding is not possible
+Do not stop and tell me that Power Apps does not support arbitrary HTML.
+Instead, investigate the available supported approaches and implement the best one.
+For example, consider where technically appropriate:
+Power Apps custom pages
+HTML/web resources
+PCF controls
+Power Apps Component Framework
+Dataverse-backed components
+Canvas Apps
+Model-driven Apps
+Power Pages
+Custom connectors
+Power Platform solutions
+Other supported Microsoft/Power Platform mechanisms
+Choose the approach yourself based on the actual HTML application's requirements and the capabilities available in the authenticated environment.
+The goal is a functioning application accessible through Power Apps, not simply uploading the HTML somewhere.
+Important execution rules
+Do the work yourself. Do not give me a tutorial.
+Do not repeatedly ask for confirmation.
+Do not ask me which environment to select. Find it yourself.
+Do not ask me which Power Apps application type to use. Determine it yourself.
+Do not ask me where to deploy it. Inspect the account and Power Apps URL and determine the correct destination.
+Use park@gluth.eu for Power Apps authentication.
+If device-code authentication is required, pause only for me to complete the authentication and then continue.
+Do not use another account unless technically unavoidable.
+Do not stop at the first error.
+Read error messages, diagnose the cause, modify the implementation, and retry.
+Preserve the original HTML application's UI, layout, styling, animations, interactions, and functionality as closely as Power Apps technically allows.
+Do not unnecessarily rewrite or simplify the application if the existing implementation can be preserved.
+If some functionality cannot be preserved because of Power Platform restrictions, find the closest technically equivalent implementation.
+Keep track of everything you change so the final result can be explained clearly.
+Final verification
+Before declaring the task complete, verify that:
+The app exists in the correct Power Platform environment.
+The app can be opened from Power Apps.
+The application renders correctly.
+The major UI elements are present.
+Interactive functionality works.
+Required assets load correctly.
+Required APIs/connectors/resources work.
+There are no unresolved deployment errors.
+The application is usable by the authenticated account.
+Final response
+When everything is complete, report:
+Power Apps app name
+App type
+Target environment
+How the HTML was integrated
+What was changed from the original HTML, if anything
+Any connectors/resources created
+Final Power Apps URL/app ID
+Any remaining limitations or issues
+Do not provide instructions for me to perform steps that you could perform yourself. The objective is to actually deploy and configure the application, not just tell me how to deploy it.
+I will now provide the HTML file and Power Apps URL. Begin by inspecting them and proceed with the deployment using park@gluth.eu.
+ 
