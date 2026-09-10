@@ -1,0 +1,12 @@
+{
+  "enabled": false,
+  "backend": "ollama",
+  "base_url": "http://127.0.0.1:11434",
+  "model": "mistral-nemo",
+  "api_key": "",
+  "deployment": "",
+  "api_version": "2024-10-21",
+  "timeout_s": 120,
+  "temperature": 0.1,
+  "max_tokens": 800
+}

@@ -1,0 +1,8 @@
+# Local environment
+.venv/
+__pycache__/
+*.pyc
+
+# Derived data — regenerate with extract.py / ocr.py / index.py.
+# Never commit: contains extracted text from confidential customer documents.
+out/

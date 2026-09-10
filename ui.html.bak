@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="de" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GLUTH AI // RFQ Engineering Intelligence Workspace</title>
+
+    <!-- ================================================================= -->
+    <!-- LOCAL ASSETS — no internet required.                               -->
+    <!-- vendor/tailwind.js is served by serve.py from pipeline/vendor/.    -->
+    <!-- Icons are inline SVG (sprite below), so no icon font is loaded.    -->
+    <!-- Web fonts are loaded non-blocking; if they fail the page falls     -->
+    <!-- back to the system font and still looks correct.                   -->
+    <!-- ================================================================= -->
+    <script src="/vendor/tailwind.js" onerror="(function(){var s=document.createElement('script');s.src='https://cdn.tailwindcss.com';s.onload=function(){try{tailwind.config=window.__twConfig;}catch(e){}};document.head.appendChild(s);})()"></script>
+    <link rel="stylesheet" media="print" onload="this.media='all'"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+    <script>
+        // The palette is defined once and applied to whichever Tailwind loaded
+        // (the local copy, or the CDN fallback above if the local one is missing).
+        window.__twConfig = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            mint: '#4DB8A0',
+                            teal: '#008F7B',
+                            deep: '#0E161A',
+                            soft: '#E3F2EE',
+                        },
+                        slate: {
+                            50: '#f6f8f8',
+                            100: '#eef2f1',
+                            200: '#e0e6e5',
+                            300: '#c6d0cf',
+                            400: '#8a9a9d',
+                            500: '#5f7075',
+                            600: '#4a5b61',
+                            700: '#37474e',
+                            800: '#2c3e48',
+                            900: '#25353d',
+                            950: '#1b282e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        };
+        if (window.tailwind) tailwind.config = window.__twConfig;
+    </script>
+    <style>
+        :root {
+            --radius: 0.625rem;
+            --background: oklch(0.995 0.002 175);
+            --foreground: oklch(0.23 0.02 200);
+            --card: oklch(1 0 0);
+            --card-foreground: oklch(0.23 0.02 200);
+            --popover: oklch(1 0 0);
+            --popover-foreground: oklch(0.23 0.02 200);
+            --primary: oklch(0.58 0.09 178);
+            --primary-foreground: oklch(0.99 0.01 175);
+            --secondary: oklch(0.968 0.006 180);
+            --secondary-foreground: oklch(0.28 0.03 200);
+            --muted: oklch(0.968 0.006 180);
+            --muted-foreground: oklch(0.53 0.02 200);
+            --accent: oklch(0.96 0.02 178);
+            --accent-foreground: oklch(0.30 0.04 195);
+            --success: oklch(0.62 0.11 175);
+            --warning: oklch(0.72 0.14 85);
+            --destructive: oklch(0.60 0.20 28);
+            --border: oklch(0.92 0.006 195);
+            --input: oklch(0.92 0.006 195);
+            --ring: oklch(0.58 0.09 178);
+            --sidebar: oklch(0.30 0.03 205);
+            --sidebar-foreground: oklch(0.85 0.02 200);
+            --sidebar-muted: oklch(0.62 0.02 205);
+            --sidebar-border: oklch(1 0 0 / 10%);
+            --sans: 'Inter', ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif;
+            --mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+        }
+
+        body {
+            background: var(--background) !important;
+            color: var(--foreground);
+            font-family: var(--sans);
+            font-size: 13px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+        main { background: transparent !important; padding: 22px 26px !important; }
+        ::selection { background: var(--primary); color: var(--primary-foreground); }
+
+        .font-mono { font-family: var(--sans) !important; letter-spacing: 0 !important; }
+        .mono, #source-viewer-body, #source-viewer-body *, .tabular { font-family: var(--mono) !important; }
+
+        h1,h2,h3,h4 { color: var(--foreground); letter-spacing: -.01em; font-weight: 600; }
+
+        .bg-white { background: var(--card) !important; }
+        .bg-slate-50, .bg-slate-100 { background: var(--muted) !important; }
+        .border-slate-200, .border-slate-100, .border-slate-300 { border-color: var(--border) !important; }
+        .text-slate-950, .text-slate-900 { color: var(--foreground) !important; }
+        .text-slate-700, .text-slate-800 { color: color-mix(in oklab, var(--foreground) 82%, transparent) !important; }
+        .text-slate-600, .text-slate-500, .text-slate-400, .text-slate-300 { color: var(--muted-foreground) !important; }
+
+        .rounded-lg { border-radius: var(--radius) !important; }
+        .rounded, .rounded-md { border-radius: calc(var(--radius) - 2px) !important; }
+        .rounded-full { border-radius: 9999px !important; }
+
+        .shadow-2xs, .shadow-xs { box-shadow: 0 1px 2px 0 rgb(16 24 28 / .05) !important; }
+        .shadow-sm { box-shadow: 0 1px 3px 0 rgb(16 24 28 / .07), 0 1px 2px -1px rgb(16 24 28 / .07) !important; }
+        .shadow-xl { box-shadow: 0 10px 30px -12px rgb(16 24 28 / .28) !important; }
+
+        .bg-white.rounded-lg, .bg-white.border { border: 1px solid var(--border) !important; }
+
+        button { transition: background-color .15s ease, color .15s ease, box-shadow .15s ease; }
+        .bg-slate-950 { background: var(--primary) !important; color: var(--primary-foreground) !important; box-shadow: 0 1px 2px 0 rgb(16 24 28 / .08); }
+        .bg-slate-950:hover { background: color-mix(in oklab, var(--primary) 90%, black) !important; }
+        .bg-emerald-700, .bg-emerald-800 { background: var(--success) !important; color: var(--primary-foreground) !important; }
+        .bg-emerald-700:hover { background: color-mix(in oklab, var(--success) 90%, black) !important; }
+        .bg-rose-700, .bg-rose-800 { background: var(--destructive) !important; color: #fff !important; }
+        .bg-slate-100 { background: var(--secondary) !important; }
+        .bg-slate-100:hover { background: color-mix(in oklab, var(--secondary) 92%, black) !important; }
+
+        input:focus-visible, select:focus-visible, textarea:focus-visible,
+        input:focus, select:focus, textarea:focus {
+            outline: none !important;
+            border-color: var(--ring) !important;
+            box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent) !important;
+        }
+        input, select, textarea { background: transparent !important; }
+
+        thead tr { background: transparent !important; }
+        th { color: var(--muted-foreground) !important; font-weight: 500 !important; text-transform: none !important; letter-spacing: 0 !important; font-family: var(--sans) !important; font-size: 11px; }
+        td, th { padding: 12px 16px !important; }
+        tbody tr { border-bottom: 1px solid var(--border); }
+        tbody tr:hover { background: var(--muted) !important; }
+
+        .bg-emerald-100 { background: color-mix(in oklab, var(--success) 15%, var(--card)) !important; color: var(--success) !important; border-color: color-mix(in oklab, var(--success) 30%, transparent) !important; }
+        .bg-amber-100, .bg-amber-50 { background: color-mix(in oklab, var(--warning) 14%, var(--card)) !important; color: oklch(0.48 0.12 80) !important; border-color: color-mix(in oklab, var(--warning) 32%, transparent) !important; }
+        .text-amber-700, .text-amber-800, .text-amber-900, .text-amber-950, .text-amber-600 { color: oklch(0.50 0.12 78) !important; }
+        .bg-rose-50 { background: color-mix(in oklab, var(--destructive) 12%, var(--card)) !important; border-color: color-mix(in oklab, var(--destructive) 28%, transparent) !important; }
+        .text-rose-700, .text-rose-600 { color: var(--destructive) !important; }
+        .bg-sky-100 { background: var(--secondary) !important; }
+        .text-sky-700, .text-sky-800 { color: var(--muted-foreground) !important; }
+        .text-emerald-700, .text-emerald-600 { color: var(--success) !important; }
+
+        .bg-emerald-600, .bg-emerald-500 { background: var(--success) !important; border-radius: 9999px; }
+        .bg-sky-600, .bg-sky-500 { background: var(--muted-foreground) !important; border-radius: 9999px; }
+        .bg-slate-200 { background: var(--muted) !important; }
+
+        /* ---------------------------------------------------------- icons */
+        .ic { width: 15px; height: 15px; flex: none; stroke: currentColor; fill: none;
+              stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+        .ic-sm { width: 13px; height: 13px; }
+        .ic-lg { width: 17px; height: 17px; }
+
+        /* -------------------------------------------------------- sidebar */
+        .sidebar { background: var(--sidebar); border-right: 1px solid var(--sidebar-border); }
+        .side-group { font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--sidebar-muted); padding: 16px 12px 6px; font-weight: 500; }
+        .side-link {
+            width: 100%; display: flex; align-items: center; gap: 11px;
+            padding: 8px 12px; border-radius: calc(var(--radius) - 2px); margin-bottom: 2px;
+            color: var(--sidebar-foreground); font-size: 13px; font-weight: 500; text-align: left;
+            transition: background-color .15s ease, color .15s ease;
+        }
+        .side-link .ic { opacity: .8; }
+        .side-link:hover { background: oklch(1 0 0 / 6%); color: #fff; }
+        .side-link.active { background: var(--primary); color: var(--primary-foreground); font-weight: 500; }
+        .side-link.active .ic { opacity: 1; }
+        .side-badge { margin-left: auto; background: oklch(1 0 0 / 12%); color: #fff; font-size: 10.5px; font-weight: 600; padding: 1px 8px; border-radius: 9999px; }
+        .side-link.active .side-badge { background: oklch(1 0 0 / 22%); color: #fff; }
+        .sidebar .text-white { color: #fff !important; }
+        .sidebar .text-slate-400 { color: var(--sidebar-muted) !important; }
+
+        .topbar { background: color-mix(in oklab, var(--background) 82%, transparent) !important; backdrop-filter: saturate(180%) blur(8px); -webkit-backdrop-filter: saturate(180%) blur(8px); border-bottom: 1px solid var(--border); }
+
+        /* ------------------------------------------------- language switch */
+        .lang-switch { display: inline-flex; border: 1px solid var(--border); border-radius: calc(var(--radius) - 2px); overflow: hidden; background: var(--card); }
+        .lang-btn { padding: 4px 10px; font-size: 11px; font-weight: 600; color: var(--muted-foreground); letter-spacing: .02em; }
+        .lang-btn:hover { background: var(--muted); }
+        .lang-btn.active { background: var(--primary); color: var(--primary-foreground); }
+
+        .citation-chip {
+            display: inline-flex; align-items: center; padding: 0 5px;
+            font-size: 10px; font-weight: 700; cursor: pointer;
+            margin-left: 3px; margin-right: 2px; transition: all .15s ease;
+            background: color-mix(in oklab, var(--primary) 12%, var(--card));
+            color: var(--primary);
+            border: 1px solid color-mix(in oklab, var(--primary) 30%, transparent);
+            border-radius: calc(var(--radius) - 4px);
+            font-family: var(--sans);
+        }
+        .citation-chip:hover { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+        .source-highlight {
+            background: color-mix(in oklab, var(--warning) 22%, var(--card));
+            border-left: 3px solid var(--primary);
+            padding: 4px 8px; border-radius: 2px;
+        }
+
+        #review-banner { border-radius: var(--radius) !important; }
+        #source-viewer-body { background: var(--muted) !important; }
+        #source-viewer-body > div { box-shadow: 0 1px 3px 0 rgb(16 24 28 / .08) !important; border: 1px solid var(--border) !important; }
+        [id^="modal-"] > div { box-shadow: 0 24px 60px -20px rgb(16 24 28 / .5) !important; border-radius: var(--radius) !important; border: 1px solid var(--border) !important; }
+        [id^="modal-"] { background: oklch(0.23 0.02 200 / .45) !important; backdrop-filter: blur(2px); }
+        #toast { background: var(--foreground) !important; color: var(--background) !important; border: none !important; border-radius: calc(var(--radius) - 2px) !important; box-shadow: 0 16px 40px -12px rgb(16 24 28 / .45) !important; }
+
+        #screen-dashboard .grid > .bg-white { position: relative; overflow: hidden; }
+        #screen-dashboard .grid > .bg-white::before { content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background: var(--primary); }
+
+        .screen-view:not(.hidden) { animation: viewIn .28s ease; }
+        @keyframes viewIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform:none; } }
+        @media (prefers-reduced-motion: reduce) { .screen-view:not(.hidden){ animation:none; } *{ transition:none !important; } }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 9999px; }
+        .sidebar nav::-webkit-scrollbar-thumb { background: oklch(1 0 0 / 14%); }
+
+        /* status pill carries an explanation on hover */
+        .status-pill { cursor: help; }
+    </style>
+</head>
+<body class="h-full flex overflow-hidden text-xs text-slate-900">
+
+<!-- ===================== ICON SPRITE (inline, works offline) ===================== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-queue" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+  <symbol id="i-review" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></symbol>
+  <symbol id="i-drift" viewBox="0 0 24 24"><path d="M17 3l4 4-4 4"/><path d="M21 7H9a4 4 0 0 0-4 4v1"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h12a4 4 0 0 0 4-4v-1"/></symbol>
+  <symbol id="i-log" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 3v5h5"/><path d="M12 8v4l3 2"/></symbol>
+  <symbol id="i-dash" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></symbol>
+  <symbol id="i-triage" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-sort" viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+</svg>
+
+<!-- ===================== SIDEBAR ===================== -->
+<aside class="sidebar w-60 flex-none flex flex-col text-slate-300">
+    <div class="px-5 py-5 border-b border-white/10">
+        <svg viewBox="0 0 235 36" width="152" role="img" aria-label="Gluth Systemtechnik" style="height:auto;display:block">
+            <g fill="#ffffff">
+                <path d="M153.96,15.25l.76-.44c.32,1.07,1.16,1.75,2.55,1.75s2.09-.65,2.09-1.6c0-1.03-.87-1.36-2.18-1.79-1.45-.48-2.84-.86-2.84-2.5s1.26-2.44,2.73-2.44,2.47.86,2.93,1.91l-.75.42c-.33-.8-1.02-1.47-2.18-1.47-1.07,0-1.84.56-1.84,1.53s.76,1.27,1.96,1.66c1.61.53,3.06.99,3.06,2.64,0,1.52-1.22,2.49-2.99,2.49-1.64,0-2.84-.82-3.3-2.16Z"/>
+                <path d="M166.87,13.63v3.64h-.89v-3.67l-3.2-5.21h1l2.65,4.35,2.64-4.35h1l-3.22,5.24Z"/>
+                <path d="M172.49,15.25l.76-.44c.32,1.07,1.16,1.75,2.55,1.75s2.09-.65,2.09-1.6c0-1.03-.87-1.36-2.18-1.79-1.45-.48-2.84-.86-2.84-2.5s1.26-2.44,2.73-2.44,2.47.86,2.93,1.91l-.75.42c-.33-.8-1.02-1.47-2.18-1.47-1.07,0-1.84.56-1.84,1.53s.76,1.27,1.96,1.66c1.61.53,3.06.99,3.06,2.64,0,1.52-1.22,2.49-2.99,2.49-1.64,0-2.84-.82-3.3-2.16Z"/>
+                <path d="M187.85,9.22h-2.73v8.04h-.89v-8.04h-2.73v-.84h6.34v.84Z"/>
+                <path d="M196.6,16.43v.84h-5.2v-8.88h5.14v.84h-4.25v3.15h3.93v.84h-3.93v3.22h4.31Z"/>
+                <path d="M208.52,17.27h-.89v-7.53l-3.11,5.2h-.13l-3.11-5.2v7.53h-.89v-8.88h1.1l2.95,4.95,2.95-4.95h1.1v8.88h0Z"/>
+                <path d="M160.04,24.45h-2.73v8.04h-.89v-8.04h-2.73v-.84h6.34v.84Z"/>
+                <path d="M168.8,31.65v.84h-5.2v-8.88h5.14v.84h-4.25v3.15h3.93v.84h-3.93v3.22h4.31Z"/>
+                <path d="M172.03,28.05c0-2.54,1.93-4.59,4.65-4.59,1.65,0,3.11.86,3.84,2.18l-.79.46c-.55-1.07-1.72-1.78-3.06-1.78-2.25,0-3.77,1.66-3.77,3.73s1.52,3.73,3.77,3.73c1.33,0,2.51-.71,3.06-1.78l.79.44c-.72,1.32-2.18,2.2-3.84,2.2-2.73,0-4.65-2.05-4.65-4.59Z"/>
+                <path d="M190.86,23.61v8.88h-.89v-4.15h-4.82v4.15h-.89v-8.88h.89v3.9h4.82v-3.9h.89Z"/>
+                <path d="M201.77,23.61v8.88h-.76l-4.95-7.23v7.23h-.89v-8.88h.76l4.95,7.23v-7.23s.89,0,.89,0Z"/>
+                <path d="M206.97,23.61v8.88h-.89v-8.88h.89Z"/>
+                <path d="M216.33,32.49l-4.16-4.3v4.3h-.89v-8.88h.89v4.06l4.03-4.06h1.17l-4.26,4.31,4.39,4.57h-1.17Z"/>
+                <path d="M38.45,3.16h14.45v29.3h-14.45V3.16Z"/>
+                <path d="M89.81,24.79V8.37l7.31-5.12h7.14v5.12h4.67v8.84h-4.67v6.01c0,.27.22.45.54.45h4.13v8.8h-9.78c-7.72,0-9.33-2.56-9.33-7.67Z"/>
+                <path d="M72.73,8.37v14.31c0,.42-.26.77-.63.92-.05.02-.1.04-.15.05-.03,0-.07.01-.1.02-.01,0-.02,0-.03,0h-.02s-.05,0-.08,0h-.75s-.05,0-.08,0h-.1c-.24,0-.42-.1-.5-.27-.19-.18-.31-.44-.31-.73v-14.31h-14.18v18.72c0,3.5,2.24,5.03,6.46,5.39,6.06.49,12.12.49,18.18,0,4.22-.36,6.46-1.89,6.46-5.39V8.37h-14.18Z"/>
+                <path d="M134.94,8.37h-8.66V3.16h-14.45v29.3h14.18v-15.5h1.75c.55,0,1,.45,1,1v14.5h14.18V15.59c0-5.7-1.89-7.22-7.99-7.22Z"/>
+                <path d="M19.21,14.3v9.37h-1.86c-.49,0-.88-.39-.88-.88v-10.55c0-.38.31-.69.69-.69h18.4V3.16H9.25C3.2,3.16.77,5.45.37,9.35-.12,14.65-.12,20.8.37,26.27c.31,3.9,2.38,6.19,8.84,6.19h26.34V14.3h-16.34Z"/>
+            </g>
+            <rect fill="#4ab7a0" x="226.12" y="23.6" width="8.88" height="8.88"/>
+        </svg>
+        <div class="text-[10px] text-slate-400 mt-2.5 tracking-wide" data-i18n="brand_sub">RFQ Intelligence · Use Case 0</div>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto p-3">
+        <div class="side-group" data-i18n="grp_workflow">Workflow</div>
+        <button onclick="switchScreen('screen-queue')" id="nav-screen-queue" class="side-link active">
+            <svg class="ic"><use href="#i-queue"/></svg><span data-i18n="nav_queue">Projektliste</span>
+        </button>
+        <button onclick="switchScreen('screen-review')" id="nav-screen-review" class="side-link">
+            <svg class="ic"><use href="#i-review"/></svg><span data-i18n="nav_review">Prüfansicht</span>
+        </button>
+        <button onclick="switchScreen('screen-search')" id="nav-screen-search" class="side-link">
+            <svg class="ic"><use href="#i-search"/></svg><span data-i18n="nav_search">Präzedenzsuche</span>
+        </button>
+
+        <div class="side-group" data-i18n="grp_governance">Nachvollziehbarkeit</div>
+        <button onclick="switchScreen('screen-drift')" id="nav-screen-drift" class="side-link">
+            <svg class="ic"><use href="#i-drift"/></svg><span data-i18n="nav_drift">Versionsabweichungen</span>
+            <span id="drift-badge" class="side-badge">0</span>
+        </button>
+        <button onclick="switchScreen('screen-corrections')" id="nav-screen-corrections" class="side-link">
+            <svg class="ic"><use href="#i-log"/></svg><span data-i18n="nav_corrections">Korrekturprotokoll</span>
+        </button>
+        <button onclick="switchScreen('screen-dashboard')" id="nav-screen-dashboard" class="side-link">
+            <svg class="ic"><use href="#i-dash"/></svg><span data-i18n="nav_dashboard">Kennzahlen</span>
+        </button>
+        <button onclick="switchScreen('screen-triage')" id="nav-screen-triage" class="side-link">
+            <svg class="ic"><use href="#i-triage"/></svg><span data-i18n="nav_triage">Bid / No-Bid</span>
+        </button>
+    </nav>
+
+    <div class="px-3 py-3 border-t border-white/10 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white">
+            <svg class="ic"><use href="#i-lock"/></svg>
+        </div>
+        <div class="leading-tight">
+            <div class="text-white text-xs font-semibold" data-i18n="user_title">Lokaler Arbeitsplatz</div>
+            <div class="text-[10px] text-slate-400" data-i18n="user_sub">ohne Benutzerkonto</div>
+        </div>
+    </div>
+</aside>
+
+<!-- ===================== CONTENT COLUMN ===================== -->
+<div class="flex-1 flex flex-col min-w-0">
+    <header class="topbar h-14 flex-none px-7 flex items-center justify-between">
+        <div>
+            <div class="text-[11px] text-slate-400 font-medium" data-i18n="uc_label">Use Case 0 · Technischer Vertrieb</div>
+            <h1 id="page-title" class="text-base font-bold text-slate-900 tracking-tight leading-tight">—</h1>
+        </div>
+        <div class="flex items-center gap-3">
+            <div id="runtime-badge" class="flex items-center gap-2 text-[11px] text-brand-teal bg-brand-soft px-3 py-1.5 rounded-lg font-medium">
+                <span class="w-2 h-2 rounded-full bg-brand-mint"></span>
+                <span id="runtime-text" data-i18n="runtime_connecting">lokaler Index wird geprüft…</span>
+            </div>
+            <div class="lang-switch" role="group" aria-label="Sprache / Language">
+                <button class="lang-btn" id="lang-de" onclick="setLang('de')">DE</button>
+                <button class="lang-btn" id="lang-en" onclick="setLang('en')">EN</button>
+            </div>
+        </div>
+    </header>
+
+    <div id="toast" class="hidden fixed bottom-4 right-4 z-50 px-4 py-2.5 flex items-center gap-3 text-xs">
+        <svg class="ic" style="color:var(--success)"><use href="#i-check-circle"/></svg>
+        <span id="toast-msg"></span>
+        <button onclick="hideToast()" class="opacity-60 hover:opacity-100 ml-2"><svg class="ic-sm ic"><use href="#i-x"/></svg></button>
+    </div>
+
+    <main class="flex-grow overflow-y-auto bg-slate-100 p-4">
+
+    <!-- ============================ SCREEN 1 — QUEUE ============================ -->
+    <section id="screen-queue" class="screen-view space-y-4">
+
+        <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-[11px] font-medium text-slate-500" data-i18n="showing">Angezeigt</span>
+                    <span class="text-[10px] bg-slate-100 border border-slate-200 px-2 py-0.5 rounded text-slate-600" id="queue-count-badge">—</span>
+                </div>
+                <button onclick="openNewInquiryModal()" class="bg-slate-950 text-white px-3 py-1.5 rounded font-medium text-xs transition flex items-center gap-1.5">
+                    <svg class="ic-sm ic"><use href="#i-plus"/></svg>
+                    <span data-i18n="btn_new_inquiry">Projekt erfassen</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-2 border-t border-slate-100">
+                <div class="sm:col-span-4">
+                    <label class="block text-[10px] text-slate-500 uppercase mb-0.5" data-i18n="f_customer">Kunde</label>
+                    <select id="filter-customer" onchange="renderQueueTable()" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-xs"></select>
+                </div>
+                <div class="sm:col-span-4">
+                    <label class="block text-[10px] text-slate-500 uppercase mb-0.5" data-i18n="f_status">Projektart</label>
+                    <select id="filter-status" onchange="renderQueueTable()" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-xs">
+                        <option value="ALL" data-i18n="f_all_status">Alle</option>
+                        <option value="OPEN" data-i18n="st_OPEN">nicht abgeschlossen</option>
+                        <option value="REALISED" data-i18n="st_REALISED">vollständig realisiert</option>
+                    </select>
+                </div>
+                <div class="sm:col-span-4 flex items-end justify-end">
+                    <div class="text-[10px] text-slate-500 flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded w-full">
+                        <svg class="ic-sm ic text-slate-400"><use href="#i-sort"/></svg>
+                        <span data-i18n="sort_hint">Nicht abgeschlossene zuerst, dann nach Projektnummer</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-lg shadow-2xs overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-[10px] text-slate-500 uppercase tracking-wider">
+                            <th class="p-3" data-i18n="th_project">Projekt / Kunde</th>
+                            <th class="p-3" data-i18n="th_machine">Anlage / Umfang</th>
+                            <th class="p-3" data-i18n="th_stage">Höchste belegte Phase</th>
+                            <th class="p-3" data-i18n="th_corpus">Bestand</th>
+                            <th class="p-3" data-i18n="th_status">Projektart</th>
+                            <th class="p-3 text-right" data-i18n="th_action">Aktion</th>
+                        </tr>
+                    </thead>
+                    <tbody id="queue-tbody" class="divide-y divide-slate-200 text-xs"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="text-[10px] text-slate-500 px-1" data-i18n="queue_footnote">
+            Die Liste enthält die Projekte, die im Korpus auf der Festplatte gefunden wurden. Die Projektart stammt aus dem Nummernpräfix (A / R), das Gluth selbst vergibt. Die Phase ist der am weitesten fortgeschrittene Ordner, in dem tatsächlich Dokumente liegen.
+        </div>
+    </section>
+
+    <!-- ============================ SCREEN 2 — REVIEW ============================ -->
+    <section id="screen-review" class="screen-view hidden space-y-3">
+
+        <div id="review-banner" class="p-3 rounded-lg border flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-2xs bg-white border-slate-200">
+            <div class="flex items-start space-x-3">
+                <div class="p-2 bg-amber-100 rounded text-amber-800 flex-none">
+                    <svg class="ic"><use href="#i-alert"/></svg>
+                </div>
+                <div>
+                    <div class="flex items-center flex-wrap gap-2">
+                        <span class="font-bold text-xs" id="review-project-no">—</span>
+                        <span class="font-bold text-xs text-slate-700" id="review-machine-title"></span>
+                        <span id="review-confidence-pill" class="text-[10px] bg-slate-100 border border-slate-200 font-bold px-2 py-0.5 rounded">—</span>
+                    </div>
+                    <p class="text-[11px] text-slate-600 mt-0.5" id="review-confidence-desc" data-i18n="review_pick">
+                        Wählen Sie links ein Projekt aus der Projektliste.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 flex-none">
+                <button onclick="openCorrectionModal()" class="bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 px-3 py-1.5 rounded font-medium text-xs flex items-center gap-1.5 shadow-2xs">
+                    <svg class="ic-sm ic text-amber-600"><use href="#i-edit"/></svg>
+                    <span data-i18n="btn_correct">Korrigieren…</span>
+                </button>
+                <button onclick="approveDraft()" class="bg-emerald-700 text-white px-4 py-1.5 rounded font-bold text-xs flex items-center gap-1.5 shadow-2xs">
+                    <svg class="ic-sm ic"><use href="#i-check"/></svg>
+                    <span data-i18n="btn_approve">Freigeben</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 h-[calc(100vh-185px)] min-h-[550px]">
+
+            <div class="lg:col-span-6 bg-white border border-slate-200 rounded-lg flex flex-col overflow-hidden shadow-2xs">
+                <div class="bg-slate-50 border-b border-slate-200 px-3 py-2 flex items-center justify-between">
+                    <div class="flex space-x-1 text-[11px]">
+                        <button onclick="switchDraftTab('summary')" data-kind="summary" class="draft-tab-btn px-3 py-1 rounded font-bold bg-white border border-slate-300 text-slate-900 shadow-2xs" data-i18n="tab_summary">Zusammenfassung</button>
+                        <button onclick="switchDraftTab('checkliste')" data-kind="checkliste" class="draft-tab-btn px-3 py-1 rounded font-medium text-slate-600" data-i18n="tab_checklist">Checkliste</button>
+                        <button onclick="switchDraftTab('uebersicht')" data-kind="uebersicht" class="draft-tab-btn px-3 py-1 rounded font-medium text-slate-600" data-i18n="tab_overview">Übersicht</button>
+                    </div>
+                    <span id="citation-count" class="text-[10px] text-slate-400">—</span>
+                </div>
+                <div id="draft-pane" class="p-4 flex-grow overflow-y-auto">
+                    <div class="p-6 text-slate-400 text-xs" data-i18n="review_pick">Wählen Sie links ein Projekt aus der Projektliste.</div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-6 bg-white border border-slate-200 rounded-lg flex flex-col overflow-hidden shadow-2xs">
+                <div class="bg-slate-50 border-b border-slate-200 px-3 py-2 flex items-center justify-between text-[11px]">
+                    <div class="flex items-center gap-2 text-slate-800">
+                        <svg class="ic-sm ic text-slate-500"><use href="#i-file"/></svg>
+                        <span id="source-doc-name" class="font-bold" data-i18n="src_none">Keine Quelle geöffnet</span>
+                    </div>
+                    <span id="source-page-indicator" class="bg-white border px-2 py-0.5 rounded text-slate-700">—</span>
+                </div>
+                <div class="p-4 flex-grow overflow-y-auto space-y-3" id="source-viewer-body">
+                    <div class="p-6 text-slate-400 text-xs" data-i18n="src_hint">Klicken Sie im Entwurf auf eine Belegnummer, um die Originalstelle hier zu öffnen.</div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ============================ SCREEN 3 — SEARCH ============================ -->
+    <section id="screen-search" class="screen-view hidden space-y-4 max-w-5xl mx-auto">
+
+        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-2xs space-y-4">
+            <div>
+                <h2 class="font-bold text-base text-slate-950" data-i18n="search_h">Präzedenzsuche im Projektbestand</h2>
+                <p class="text-xs text-slate-500 mt-0.5" id="search-sub" data-i18n="search_sub">
+                    Beantwortet die Frage „Haben wir so etwas schon einmal gebaut?“ in normaler Sprache — über den lokal indexierten Projektbestand.
+                </p>
+            </div>
+
+            <div class="relative">
+                <svg class="ic ic-lg absolute left-3.5 top-3 text-slate-400"><use href="#i-search"/></svg>
+                <input type="text" id="precedent-search-input" onkeyup="executePrecedentSearch()"
+                       data-i18n-ph="search_ph" placeholder="Anlage beschreiben…"
+                       class="w-full pl-11 pr-24 py-3 text-xs bg-slate-50 border border-slate-300 rounded-lg text-slate-900 font-medium">
+                <button onclick="runPrecedentSearch()" class="absolute right-2 top-2 bg-slate-950 text-white text-xs px-3 py-1.5 rounded font-medium" data-i18n="btn_search">Suchen</button>
+            </div>
+
+            <div class="flex items-center flex-wrap gap-2 text-[10px]">
+                <span class="text-slate-400" data-i18n="samples">Beispiele:</span>
+                <span id="sample-chips" class="flex flex-wrap gap-2"></span>
+            </div>
+        </div>
+
+        <div class="space-y-3">
+            <div class="flex justify-between items-center text-xs text-slate-500">
+                <span id="search-results-count" data-i18n="search_empty">Suchbegriff eingeben, um den Bestand zu durchsuchen</span>
+                <span id="index-status" class="text-[10px] text-slate-400">—</span>
+            </div>
+            <div id="precedent-results-container" class="space-y-3"></div>
+        </div>
+    </section>
+
+    <!-- ============================ SCREEN 4 — DRIFT ============================ -->
+    <section id="screen-drift" class="screen-view hidden space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="bg-white p-3.5 rounded-lg border border-slate-200 shadow-2xs">
+                <div class="text-[10px] text-slate-500 uppercase" data-i18n="d_multi">Mehrere Versionen abgelegt</div>
+                <div class="text-xl font-bold text-rose-700 mt-1" id="drift-multi">0</div>
+                <div class="text-[10px] text-slate-500 mt-0.5" data-i18n="d_multi_sub">gegen welche wurde das Angebot geschrieben?</div>
+            </div>
+            <div class="bg-white p-3.5 rounded-lg border border-slate-200 shadow-2xs">
+                <div class="text-[10px] text-slate-500 uppercase" data-i18n="d_stale">Veraltete Verweise</div>
+                <div class="text-xl font-bold text-amber-700 mt-1" id="drift-stale">0</div>
+                <div class="text-[10px] text-slate-500 mt-0.5" data-i18n="d_stale_sub">verweist auf eine ältere Version als vorhanden</div>
+            </div>
+            <div class="bg-white p-3.5 rounded-lg border border-slate-200 shadow-2xs">
+                <div class="text-[10px] text-slate-500 uppercase" data-i18n="d_notheld">Zitiert, aber nicht vorhanden</div>
+                <div class="text-xl font-bold text-slate-900 mt-1" id="drift-notheld">0</div>
+                <div class="text-[10px] text-slate-500 mt-0.5" data-i18n="d_notheld_sub">keine lokale Kopie — Änderungen bleiben unbemerkt</div>
+            </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-lg shadow-2xs">
+            <div class="p-3 border-b border-slate-200 flex justify-between items-center bg-slate-50 gap-3">
+                <div>
+                    <div class="font-bold text-xs text-slate-900" data-i18n="d_h">Verweis- und Versionsabweichungen</div>
+                    <div class="text-[10px] text-slate-500 mt-0.5" data-i18n="d_h_sub">Regelbasiert — Versionen aus Dateinamen und ausdrücklichen Angaben im Dokument gelesen. Kein Sprachmodell beteiligt.</div>
+                </div>
+                <select id="filter-drift-kind" onchange="renderDrift()" class="bg-white border border-slate-200 rounded px-2 py-1 text-xs flex-none">
+                    <option value="" data-i18n="d_all">Alle Befunde</option>
+                    <option value="MULTIPLE_VERSIONS" data-i18n="d_multi_o">Mehrere Versionen</option>
+                    <option value="STALE_REFERENCE" data-i18n="d_stale_o">Veralteter Verweis</option>
+                    <option value="NOT_HELD" data-i18n="d_notheld_o">Nicht vorhanden</option>
+                </select>
+            </div>
+            <div id="drift-list" class="p-3 space-y-2"></div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-lg shadow-2xs">
+            <div class="p-3 border-b border-slate-200 bg-slate-50">
+                <div class="font-bold text-xs text-slate-900" data-i18n="sd_h">Was sich zwischen zwei Versionen geändert hat</div>
+                <div class="text-[10px] text-slate-500 mt-0.5" data-i18n="sd_h_sub">Nur Zahlenänderungen — Maße, Toleranzen, Taktzeiten. Die Änderungen, die Geld kosten.</div>
+            </div>
+            <div class="p-3 space-y-3">
+                <select id="specdiff-pair" onchange="renderSpecDiff()" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1.5 text-xs"></select>
+                <div id="specdiff-result" class="space-y-2"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================ SCREEN 5 — CORRECTIONS ============================ -->
+    <section id="screen-corrections" class="screen-view hidden space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div class="bg-white p-3.5 rounded-lg border border-slate-200 shadow-2xs">
+                <div class="text-[10px] text-slate-500 uppercase" data-i18n="c_logged">Erfasste Korrekturen</div>
+                <div class="text-xl font-bold text-slate-950 mt-1" id="stat-corrections-count">0</div>
+                <div class="text-[10px] text-slate-500 mt-0.5" data-i18n="c_logged_sub">in SQLite gespeichert</div>
+            </div>
+            <div class="bg-white p-3.5 rounded-lg border border-slate-200 shadow-2xs">
+                <div class="text-[10px] text-slate-500 uppercase" data-i18n="c_top">Häufigst korrigiertes Feld</div>
+                <div class="text-xs font-bold text-amber-700 mt-1" id="stat-top-field">—</div>
+                <div class="text-[10px] text-slate-500 mt-0.5" id="stat-top-field-sub">—</div>
+            </div>
+            <div class="bg-white p-3.5 rounded-lg border border-slate-200 shadow-2xs">
+                <div class="text-[10px] text-slate-500 uppercase" data-i18n="c_drift">Als Versionsproblem markiert</div>
+                <div class="text-xl font-bold text-rose-700 mt-1" id="stat-drift-count">0</div>
+                <div class="text-[10px] text-slate-500 mt-0.5" data-i18n="c_drift_sub">Hinweis auf veralteten Wissensstand</div>
+            </div>
+            <div class="bg-white p-3.5 rounded-lg border border-slate-200 shadow-2xs">
+                <div class="text-[10px] text-slate-500 uppercase" data-i18n="c_activity">Prüfaktivität</div>
+                <div class="text-xs font-bold text-slate-900 mt-1" id="stat-reviews">—</div>
+                <div class="text-[10px] text-slate-500 mt-0.5" data-i18n="c_activity_sub">in diesem Arbeitsbereich</div>
+            </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-lg shadow-2xs overflow-hidden">
+            <div class="p-3 border-b border-slate-200 flex justify-between items-center bg-slate-50 gap-3">
+                <div class="font-bold text-xs text-slate-900" data-i18n="c_h">Korrekturprotokoll — menschliche Rückmeldungen</div>
+                <select id="filter-route-tag" onchange="renderCorrectionLog()" class="bg-white border border-slate-200 rounded px-2 py-1 text-xs flex-none">
+                    <option value="ALL" data-i18n="c_tag_all">Alle Kategorien</option>
+                    <option value="Drift" data-i18n="c_tag_drift">Versionsproblem</option>
+                    <option value="Content" data-i18n="c_tag_content">Inhaltliche Korrektur</option>
+                    <option value="OK" data-i18n="c_tag_ok">Kleinigkeit</option>
+                </select>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead><tr class="border-b border-slate-200 text-[10px] text-slate-500 uppercase">
+                        <th class="p-3" data-i18n="c_th_time">Zeitpunkt</th>
+                        <th class="p-3" data-i18n="c_th_proj">Projekt / Artefakt</th>
+                        <th class="p-3" data-i18n="c_th_field">Feld</th>
+                        <th class="p-3" data-i18n="c_th_action">Was korrigiert wurde</th>
+                        <th class="p-3" data-i18n="c_th_tag">Kategorie</th>
+                    </tr></thead>
+                    <tbody id="corrections-tbody" class="divide-y divide-slate-200 text-xs"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================ SCREEN 6 — DASHBOARD ============================ -->
+    <section id="screen-dashboard" class="screen-view hidden space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-2xs space-y-2">
+                <div class="flex justify-between items-start text-[10px] text-slate-500">
+                    <span data-i18n="k_extract">Extraktionsquote</span><span class="text-emerald-700 font-bold" data-i18n="k_measured">gemessen</span>
+                </div>
+                <div class="text-2xl font-bold text-slate-950" id="kpi-extract">—</div>
+                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden"><div id="kpi-extract-bar" class="bg-emerald-600 h-full" style="width:0%"></div></div>
+                <div class="text-[10px] text-slate-500" id="kpi-extract-sub">—</div>
+            </div>
+            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-2xs space-y-2">
+                <div class="flex justify-between items-start text-[10px] text-slate-500">
+                    <span data-i18n="k_cite">Aussagen mit Quellenangabe</span><span class="text-emerald-700 font-bold" data-i18n="k_target">Ziel 100 %</span>
+                </div>
+                <div class="text-2xl font-bold text-slate-950" id="kpi-citation">—</div>
+                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden"><div id="kpi-citation-bar" class="bg-emerald-600 h-full" style="width:0%"></div></div>
+                <div class="text-[10px] text-slate-500" data-i18n="k_cite_sub">wörtlich übernommen — nichts erzeugt</div>
+            </div>
+            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-2xs space-y-2">
+                <div class="text-[10px] text-slate-500" data-i18n="k_chunks">Indexierte Textstellen</div>
+                <div class="text-2xl font-bold text-slate-950" id="kpi-corpus">—</div>
+                <div class="text-[10px] text-slate-500" id="kpi-corpus-sub">—</div>
+            </div>
+            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-2xs space-y-2">
+                <div class="flex justify-between items-start text-[10px] text-slate-500">
+                    <span data-i18n="k_ocr">Dateien, die OCR benötigen</span><span class="text-amber-700 font-bold" data-i18n="k_backlog">Rückstand</span>
+                </div>
+                <div class="text-2xl font-bold text-slate-950" id="kpi-ocr">—</div>
+                <div class="text-[10px] text-slate-500" id="kpi-ocr-sub">—</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+            <div class="lg:col-span-6 bg-white border border-slate-200 rounded-lg p-4 shadow-2xs space-y-3">
+                <h3 class="font-bold text-xs uppercase text-slate-950" data-i18n="k_mix">Belegdichte der Entwürfe</h3>
+                <div id="confidence-mix" class="space-y-2"></div>
+                <div class="text-[10px] text-slate-400 pt-1" data-i18n="k_mix_sub">Ergibt sich aus Anzahl der Fundstellen und Quellenquote — keine Einschätzung eines Modells.</div>
+            </div>
+            <div class="lg:col-span-6 bg-white border border-slate-200 rounded-lg p-4 shadow-2xs space-y-3">
+                <h3 class="font-bold text-xs uppercase text-slate-950" data-i18n="k_fmt">Extraktion nach Dateiformat</h3>
+                <div id="format-coverage" class="space-y-1.5"></div>
+                <div class="text-[10px] text-slate-500 pt-2 border-t border-slate-100" id="review-throughput">—</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================ SCREEN 7 — TRIAGE ============================ -->
+    <section id="screen-triage" class="screen-view hidden space-y-4">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <div class="lg:col-span-6 bg-white border border-slate-200 rounded-lg p-4 shadow-2xs space-y-4">
+                <div class="border-b border-slate-200 pb-2">
+                    <h3 class="font-bold text-xs uppercase text-slate-950" data-i18n="t_h">Bid / No-Bid Entscheidung</h3>
+                    <div class="text-[10px] text-slate-500 mt-1" data-i18n="t_h_sub">Menschliche Entscheidung. Das System hält sie fest, es trifft sie nie.</div>
+                </div>
+                <div>
+                    <label class="block text-[10px] text-slate-500 uppercase mb-1" data-i18n="t_project">Projekt</label>
+                    <select id="triage-project" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1.5 text-xs"></select>
+                </div>
+                <div class="space-y-2 text-xs">
+                    <label class="flex items-center gap-2 p-2 bg-slate-50 border rounded cursor-pointer">
+                        <input type="checkbox" class="triage-crit" data-label="Fits plant footprint" checked><span data-i18n="t_c1">Anlage passt in die Standard-Aufstellfläche</span></label>
+                    <label class="flex items-center gap-2 p-2 bg-slate-50 border rounded cursor-pointer">
+                        <input type="checkbox" class="triage-crit" data-label="Budget intent verified" checked><span data-i18n="t_c2">Budgetabsicht des Kunden bestätigt (keine reine Preisabfrage)</span></label>
+                    <label class="flex items-center gap-2 p-2 bg-slate-50 border rounded cursor-pointer">
+                        <input type="checkbox" class="triage-crit" data-label="Know-how aligns" checked><span data-i18n="t_c3">Montage-Know-how passt zum Haus</span></label>
+                    <label class="flex items-center gap-2 p-2 bg-slate-50 border rounded cursor-pointer">
+                        <input type="checkbox" class="triage-crit" data-label="Engineer capacity"><span data-i18n="t_c4">Konstruktionskapazität in den nächsten 2 Wochen verfügbar</span></label>
+                </div>
+                <div>
+                    <label class="block text-[10px] text-slate-500 uppercase mb-1" data-i18n="t_assign">Zuständigkeit</label>
+                    <select id="triage-assign" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1.5 text-xs"></select>
+                </div>
+                <div class="flex gap-2 pt-1">
+                    <button onclick="submitDecision('BID')" class="w-1/2 bg-emerald-700 text-white text-xs py-2 rounded font-bold" data-i18n="t_bid">BID (GO)</button>
+                    <button onclick="submitDecision('NO-BID')" class="w-1/2 bg-rose-700 text-white text-xs py-2 rounded font-bold" data-i18n="t_nobid">NO-BID</button>
+                </div>
+            </div>
+
+            <div class="lg:col-span-6 bg-white border border-slate-200 rounded-lg shadow-2xs overflow-hidden">
+                <div class="p-3 border-b border-slate-200 bg-slate-50">
+                    <h3 class="font-bold text-xs uppercase text-slate-950" data-i18n="t_r_h">Zuständigkeit und Entscheidungen</h3>
+                    <div class="text-[10px] text-slate-500 mt-1" data-i18n="t_r_sub">Zuständigkeit wird aus dem Kunden abgeleitet. Entscheidungen werden dauerhaft gespeichert.</div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead><tr class="border-b border-slate-200 text-[10px] text-slate-500 uppercase">
+                            <th class="p-3" data-i18n="t_th_cust">Kunde</th>
+                            <th class="p-3" data-i18n="t_th_owner">Zuständig</th>
+                            <th class="p-3" data-i18n="t_th_proj">Projekt</th>
+                            <th class="p-3" data-i18n="t_th_dec">Entscheidung</th>
+                        </tr></thead>
+                        <tbody id="routing-tbody" class="divide-y divide-slate-200 text-xs"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    </main>
+</div><!-- /content column -->
+
+<!-- ============================ MODAL: CORRECTION ============================ -->
+<div id="modal-correct" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg border border-slate-200 max-w-md w-full p-4 shadow-xl space-y-3">
+        <div class="flex justify-between items-center border-b pb-2">
+            <h3 class="font-bold text-xs uppercase text-slate-950">
+                <span data-i18n="m_corr_h">Korrektur erfassen</span> · <span id="corr-project" class="text-brand-teal">—</span>
+            </h3>
+            <button onclick="closeCorrectionModal()" class="text-slate-400 hover:text-slate-700"><svg class="ic"><use href="#i-x"/></svg></button>
+        </div>
+        <div class="space-y-3 text-xs">
+            <div>
+                <label class="block text-[10px] text-slate-500 uppercase mb-1" data-i18n="m_corr_field">Betroffenes Feld / Abschnitt</label>
+                <input type="text" id="corr-field" class="w-full bg-slate-50 border rounded p-1.5 text-xs">
+            </div>
+            <div>
+                <label class="block text-[10px] text-slate-500 uppercase mb-1" data-i18n="m_corr_what">Was korrigiert wurde</label>
+                <textarea id="corr-action" rows="2" class="w-full bg-slate-50 border rounded p-1.5 text-xs" data-i18n-ph="m_corr_ph"></textarea>
+            </div>
+            <div>
+                <label class="block text-[10px] text-slate-500 uppercase mb-1" data-i18n="m_corr_tag">Kategorie</label>
+                <select id="corr-tag" class="w-full bg-slate-50 border rounded p-1.5 text-xs font-bold">
+                    <option value="Drift" data-i18n="c_tag_drift">Versionsproblem</option>
+                    <option value="Content" data-i18n="c_tag_content">Inhaltliche Korrektur</option>
+                    <option value="OK" data-i18n="c_tag_ok">Kleinigkeit</option>
+                </select>
+            </div>
+        </div>
+        <div class="flex gap-2 pt-2 border-t">
+            <button onclick="closeCorrectionModal()" class="w-1/2 bg-slate-100 text-slate-700 py-1.5 rounded font-medium text-xs" data-i18n="btn_cancel">Abbrechen</button>
+            <button onclick="saveCorrection()" class="w-1/2 bg-slate-950 text-white py-1.5 rounded font-bold text-xs" data-i18n="btn_save">Speichern</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================ MODAL: NEW INQUIRY ============================ -->
+<div id="modal-new-inquiry" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg border border-slate-200 max-w-md w-full p-4 shadow-xl space-y-3">
+        <div class="flex justify-between items-center border-b pb-2">
+            <h3 class="font-bold text-xs uppercase text-slate-950" data-i18n="m_new_h">Projekt manuell erfassen</h3>
+            <button onclick="closeNewInquiryModal()" class="text-slate-400 hover:text-slate-700"><svg class="ic"><use href="#i-x"/></svg></button>
+        </div>
+
+        <div class="text-[11px] bg-amber-50 border border-amber-200 rounded p-2.5 flex gap-2">
+            <svg class="ic ic-sm text-amber-700 mt-0.5"><use href="#i-alert"/></svg>
+            <span data-i18n="m_new_note">Legt nur eine Zeile in der Projektliste an. Es wird kein Dokument eingelesen — Dokumente gelangen ausschließlich über extract.py in den Bestand.</span>
+        </div>
+
+        <div class="space-y-3 text-xs">
+            <div>
+                <label class="block text-[10px] text-slate-500 uppercase mb-1" data-i18n="m_new_no">Projektnummer</label>
+                <input type="text" id="new-proj-no" placeholder="A07622004" class="w-full bg-slate-50 border rounded p-1.5 text-xs">
+            </div>
+            <div>
+                <label class="block text-[10px] text-slate-500 uppercase mb-1" data-i18n="m_new_cust">Kunde</label>
+                <input type="text" id="new-proj-customer" list="customer-list" class="w-full bg-slate-50 border rounded p-1.5 text-xs">
+                <datalist id="customer-list"></datalist>
+            </div>
+            <div>
+                <label class="block text-[10px] text-slate-500 uppercase mb-1" data-i18n="m_new_title">Anlage / Umfang</label>
+                <input type="text" id="new-proj-title" class="w-full bg-slate-50 border rounded p-1.5 text-xs">
+            </div>
+        </div>
+
+        <div class="flex gap-2 pt-2 border-t">
+            <button onclick="closeNewInquiryModal()" class="w-1/2 bg-slate-100 text-slate-700 py-1.5 rounded font-medium text-xs" data-i18n="btn_cancel">Abbrechen</button>
+            <button onclick="submitNewInquiry()" class="w-1/2 bg-slate-950 text-white py-1.5 rounded font-bold text-xs" data-i18n="m_new_save">Anlegen</button>
+        </div>
+    </div>
+</div>
+
+<script>
+/* =====================================================================
+   LIVE APPLICATION — every screen reads the local retrieval API.
+   There is no LLM anywhere in this path. All content is either
+   extracted verbatim from the corpus or computed from it.
+   ===================================================================== */
+const API = 'http://127.0.0.1:8800';
+
+/* ---------------------------------------------------------------------
+   DEMO QUERIES — edit these three to queries that actually return good
+   hits on your corpus. They are the only place sample text lives.
+   --------------------------------------------------------------------- */
+const DEMO_QUERIES = [
+    { label: 'Schläuche crimpen',    q: 'Schläuche ablängen, fetten und crimpen' },
+    { label: 'Dichtheitsprüfung',    q: 'Dichtheitsprüfung End-of-Line' },
+    { label: 'Kabelvormontage',      q: 'Kabel vormontieren Stecker verpressen' }
+];
+
+/* =====================================================================
+   TRANSLATIONS — interface labels only.
+   Document content, file names and folder names (3_Angebot) are NEVER
+   translated: they are verbatim evidence.
+   ===================================================================== */
+const I18N = {
+de: {
+    brand_sub: 'RFQ Intelligence · Use Case 0',
+    grp_workflow: 'Arbeitsablauf', grp_governance: 'Nachvollziehbarkeit',
+    nav_queue: 'Projektliste', nav_review: 'Prüfansicht', nav_search: 'Präzedenzsuche',
+    nav_drift: 'Versionsabweichungen', nav_corrections: 'Korrekturprotokoll',
+    nav_dashboard: 'Kennzahlen', nav_triage: 'Bid / No-Bid',
+    user_title: 'Lokaler Arbeitsplatz', user_sub: 'ohne Benutzerkonto',
+    uc_label: 'Use Case 0 · Technischer Vertrieb',
+    runtime_connecting: 'lokaler Index wird geprüft…',
+    runtime_offline: 'lokaler Dienst nicht erreichbar', no_llm: 'ohne LLM',
+
+    pt_queue: 'Projektliste', pt_review: 'Prüfansicht', pt_search: 'Präzedenzsuche',
+    pt_drift: 'Verweis- und Versionsabweichungen', pt_corrections: 'Korrekturprotokoll',
+    pt_dashboard: 'Kennzahlen', pt_triage: 'Bid / No-Bid',
+
+    showing: 'Angezeigt', btn_new_inquiry: 'Projekt erfassen',
+    f_customer: 'Kunde', f_status: 'Projektart', f_all_status: 'Alle', f_all_cust: 'Alle Kunden',
+    sort_hint: 'Nicht abgeschlossene zuerst, dann nach Projektnummer',
+    th_project: 'Projekt / Kunde', th_machine: 'Anlage / Umfang', th_stage: 'Höchste belegte Phase',
+    th_corpus: 'Bestand', th_status: 'Projektart', th_action: 'Aktion',
+    q_none: 'Keine Projekte für diese Filter.',
+    q_count: n => n + (n === 1 ? ' Projekt' : ' Projekte'),
+    q_docs: (d, c) => d + (d === 1 ? ' Datei · ' : ' Dateien · ') + c + ' Stellen',
+    q_owner: 'Zuständig: ', q_open: 'Öffnen →',
+    unassigned: 'nicht zugeordnet', sales_prefix: 'Vertrieb ',
+    queue_footnote: 'Die Liste enthält die Projekte, die im Korpus auf der Festplatte gefunden wurden. Die Projektart stammt aus dem Nummernpräfix (A / R), das Gluth selbst vergibt. Die Phase ist der am weitesten fortgeschrittene Ordner, in dem tatsächlich Dokumente liegen.',
+
+    'st_OPEN': 'nicht abgeschlossen',
+    'st_REALISED': 'vollständig realisiert',
+    'st_UNKNOWN': 'unbekannt',
+    'sttip_OPEN': 'Projektnummer beginnt mit A — bei Gluth ein Projekt, das nicht zu Ende geführt wurde. Kommt aus der Nummernvergabe, nicht aus der Ordnerstruktur.',
+    'sttip_REALISED': 'Projektnummer beginnt mit R — bei Gluth ein vollständig realisiertes Projekt. Kommt aus der Nummernvergabe, nicht aus der Ordnerstruktur.',
+    'sttip_UNKNOWN': 'Projektnummer beginnt weder mit A noch mit R — Art nicht bestimmbar.',
+    ph_tip: 'Am weitesten fortgeschrittener Phasenordner, in dem tatsächlich Dokumente gefunden wurden. Leere Ordner zählen nicht.',
+    ph_none: 'keine Dokumente',
+
+    review_pick: 'Wählen Sie links ein Projekt aus der Projektliste.',
+    btn_correct: 'Korrigieren…', btn_approve: 'Freigeben',
+    tab_summary: 'Zusammenfassung', tab_checklist: 'Checkliste', tab_overview: 'Übersicht',
+    src_none: 'Keine Quelle geöffnet',
+    src_hint: 'Klicken Sie im Entwurf auf eine Belegnummer, um die Originalstelle hier zu öffnen.',
+    src_loading: 'Quelle wird geladen…', src_page: 'Seite ',
+    building: k => 'Erstelle „' + k + '“ aus dem Bestand…',
+    derived: '(abgeleitet)', nothing: 'Nichts gefunden.',
+    cit_line: (n, r) => n + (n === 1 ? ' Beleg · ' : ' Belege · ') + r + ' % mit Quelle · kein LLM',
+    conf_line: (n, r, m) => n + (n === 1 ? ' Fundstelle · ' : ' Fundstellen · ') + r + ' % mit Quellenangabe · ' + m,
+    conf_pill: c => 'Belegdichte: ' + c,
+    approved_msg: (a, p) => a + ' für ' + p + ' freigegeben',
+    approve_fail: 'Freigabe fehlgeschlagen — Dienst nicht erreichbar',
+    opened_src: (n, f) => 'Quelle [' + n + '] geöffnet — ' + f,
+
+    search_h: 'Präzedenzsuche im Projektbestand',
+    search_sub: 'Beantwortet die Frage „Haben wir so etwas schon einmal gebaut?“ in normaler Sprache — über den lokal indexierten Projektbestand.',
+    search_sub_live: (p, c) => 'Durchsucht ' + p + ' Projekte mit ' + c + ' indexierten Textstellen — vollständig auf diesem Rechner.',
+    search_ph: 'Anlage beschreiben… z. B. Schläuche ablängen, fetten, beidseitig Fittings crimpen',
+    btn_search: 'Suchen', samples: 'Beispiele:',
+    search_empty: 'Suchbegriff eingeben, um den Bestand zu durchsuchen',
+    searching: 'Suche läuft…',
+    search_hits: (n, m) => n + (n === 1 ? ' vergleichbares Projekt · ' : ' vergleichbare Projekte · ') + m + ' · lokaler Index',
+    search_none: 'Kein passender Beleg gefunden.',
+    rel: 'Relevanz ', open_project: 'Projekt öffnen →', matching: 'Passende Textstellen',
+    offline: 'Offline',
+
+    d_multi: 'Mehrere Versionen abgelegt', d_multi_sub: 'gegen welche wurde das Angebot geschrieben?',
+    d_stale: 'Veraltete Verweise', d_stale_sub: 'verweist auf eine ältere Version als vorhanden',
+    d_notheld: 'Zitiert, aber nicht vorhanden', d_notheld_sub: 'keine lokale Kopie — Änderungen bleiben unbemerkt',
+    d_h: 'Verweis- und Versionsabweichungen',
+    d_h_sub: 'Regelbasiert — Versionen aus Dateinamen und ausdrücklichen Angaben im Dokument gelesen. Kein Sprachmodell beteiligt.',
+    d_all: 'Alle Befunde', d_multi_o: 'Mehrere Versionen', d_stale_o: 'Veralteter Verweis', d_notheld_o: 'Nicht vorhanden',
+    d_none: 'Keine Befunde.',
+    'dk_MULTIPLE_VERSIONS': 'Mehrere Versionen', 'dk_STALE_REFERENCE': 'Veralteter Verweis', 'dk_NOT_HELD': 'Nicht vorhanden',
+    sd_h: 'Was sich zwischen zwei Versionen geändert hat',
+    sd_h_sub: 'Nur Zahlenänderungen — Maße, Toleranzen, Taktzeiten. Die Änderungen, die Geld kosten.',
+    sd_diffing: 'Vergleich läuft…', sd_similar: ' ähnlich', sd_added: ' hinzugefügt',
+    sd_removed: ' entfernt', sd_changed: ' geändert', sd_numeric: 'nur Zahlenänderungen',
+    sd_nonum: 'Keine Zahlenänderungen.', sd_nopairs: 'keine Versionspaare erkannt',
+
+    c_logged: 'Erfasste Korrekturen', c_logged_sub: 'in SQLite gespeichert',
+    c_top: 'Häufigst korrigiertes Feld', c_nodata: 'noch keine Daten',
+    c_edits: n => n + ' Einträge',
+    c_drift: 'Als Versionsproblem markiert', c_drift_sub: 'Hinweis auf veralteten Wissensstand',
+    c_activity: 'Prüfaktivität', c_activity_sub: 'in diesem Arbeitsbereich',
+    c_reviews: (a, r) => a + ' freigegeben / ' + r + ' Vorgänge',
+    c_h: 'Korrekturprotokoll — menschliche Rückmeldungen',
+    c_tag_all: 'Alle Kategorien', c_tag_drift: 'Versionsproblem',
+    c_tag_content: 'Inhaltliche Korrektur', c_tag_ok: 'Kleinigkeit',
+    c_th_time: 'Zeitpunkt', c_th_proj: 'Projekt / Artefakt', c_th_field: 'Feld',
+    c_th_action: 'Was korrigiert wurde', c_th_tag: 'Kategorie',
+    c_none: 'Noch keine Korrekturen erfasst. Entwurf öffnen und „Korrigieren…“ drücken.',
+    c_saved: 'Korrektur im Protokoll gespeichert.', c_save_fail: 'Speichern fehlgeschlagen — Dienst nicht erreichbar',
+
+    k_extract: 'Extraktionsquote', k_measured: 'gemessen',
+    k_cite: 'Aussagen mit Quellenangabe', k_target: 'Ziel 100 %',
+    k_cite_sub: 'wörtlich übernommen — nichts erzeugt',
+    k_chunks: 'Indexierte Textstellen', k_ocr: 'Dateien, die OCR benötigen', k_backlog: 'Rückstand',
+    k_files: (ok, tot) => ok + ' von ' + tot + ' Inhaltsdateien',
+    k_projchars: (p, m) => p + ' Projekte · ' + m + ' Mio. Zeichen',
+    k_mode: m => m + ' · kein LLM',
+    k_mix: 'Belegdichte der Entwürfe',
+    k_mix_sub: 'Ergibt sich aus Anzahl der Fundstellen und Quellenquote — keine Einschätzung eines Modells.',
+    k_fmt: 'Extraktion nach Dateiformat',
+    'cf_High': 'hoch', 'cf_Medium': 'mittel', 'cf_Low': 'niedrig',
+    k_of: ' von ',
+    k_thr: (a, c, d) => a + ' freigegeben · ' + c + ' Korrekturen · ' + d + ' Versionsprobleme',
+
+    t_h: 'Bid / No-Bid Entscheidung', t_h_sub: 'Menschliche Entscheidung. Das System hält sie fest, es trifft sie nie.',
+    t_project: 'Projekt', t_assign: 'Zuständigkeit', t_bid: 'BID (GO)', t_nobid: 'NO-BID',
+    t_c1: 'Anlage passt in die Standard-Aufstellfläche',
+    t_c2: 'Budgetabsicht des Kunden bestätigt (keine reine Preisabfrage)',
+    t_c3: 'Montage-Know-how passt zum Haus',
+    t_c4: 'Konstruktionskapazität in den nächsten 2 Wochen verfügbar',
+    t_r_h: 'Zuständigkeit und Entscheidungen',
+    t_r_sub: 'Zuständigkeit wird aus dem Kunden abgeleitet. Entscheidungen werden dauerhaft gespeichert.',
+    t_th_cust: 'Kunde', t_th_owner: 'Zuständig', t_th_proj: 'Projekt', t_th_dec: 'Entscheidung',
+    t_undecided: 'nicht entschieden',
+    t_msg: (p, v, n) => p + ' als ' + v + ' erfasst · ' + n + ' von 4 Kriterien erfüllt',
+    t_fail: 'Entscheidung fehlgeschlagen — Dienst nicht erreichbar',
+
+    m_corr_h: 'Korrektur erfassen', m_corr_field: 'Betroffenes Feld / Abschnitt',
+    m_corr_what: 'Was korrigiert wurde', m_corr_tag: 'Kategorie',
+    m_corr_ph: 'z. B. Entwurf zitierte eine überholte Normrevision — auf die gültige Fassung korrigiert',
+    m_corr_default: 'Normverweis',
+    btn_cancel: 'Abbrechen', btn_save: 'Speichern',
+    m_new_h: 'Projekt manuell erfassen',
+    m_new_note: 'Legt nur eine Zeile in der Projektliste an. Es wird kein Dokument eingelesen — Dokumente gelangen ausschließlich über extract.py in den Bestand.',
+    m_new_no: 'Projektnummer', m_new_cust: 'Kunde', m_new_title: 'Anlage / Umfang',
+    m_new_save: 'Anlegen',
+    m_new_need_no: 'Bitte eine Projektnummer eingeben.',
+    m_new_exists: 'Diese Projektnummer gibt es bereits.',
+    m_new_ok: p => 'Projekt ' + p + ' angelegt (ohne Dokumente).',
+
+    api_h: 'Lokaler Dienst nicht erreichbar',
+    api_hint: 'Server starten mit:'
+},
+en: {
+    brand_sub: 'RFQ Intelligence · Use Case 0',
+    grp_workflow: 'Workflow', grp_governance: 'Traceability',
+    nav_queue: 'Project list', nav_review: 'Review', nav_search: 'Precedent search',
+    nav_drift: 'Version drift', nav_corrections: 'Correction log',
+    nav_dashboard: 'Metrics', nav_triage: 'Bid / No-bid',
+    user_title: 'Local workstation', user_sub: 'no user account',
+    uc_label: 'Use Case 0 · Technical Sales',
+    runtime_connecting: 'checking local index…',
+    runtime_offline: 'local service unreachable', no_llm: 'no LLM',
+
+    pt_queue: 'Project list', pt_review: 'Review', pt_search: 'Precedent search',
+    pt_drift: 'Reference and version drift', pt_corrections: 'Correction log',
+    pt_dashboard: 'Metrics', pt_triage: 'Bid / No-bid',
+
+    showing: 'Showing', btn_new_inquiry: 'Record project',
+    f_customer: 'Customer', f_status: 'Project type', f_all_status: 'All', f_all_cust: 'All customers',
+    sort_hint: 'Not-completed first, then by project number',
+    th_project: 'Project / Customer', th_machine: 'Machine / Scope', th_stage: 'Furthest phase held',
+    th_corpus: 'Holdings', th_status: 'Project type', th_action: 'Action',
+    q_none: 'No projects match these filters.',
+    q_count: n => n + (n === 1 ? ' project' : ' projects'),
+    q_docs: (d, c) => d + (d === 1 ? ' file · ' : ' files · ') + c + ' passages',
+    q_owner: 'Owner: ', q_open: 'Open →',
+    unassigned: 'not assigned', sales_prefix: 'Sales ',
+    queue_footnote: 'This list holds the projects found in the corpus on disk. Project type comes from the A / R number prefix that Gluth itself assigns. The phase is the furthest folder that actually contains documents.',
+
+    'st_OPEN': 'not completed',
+    'st_REALISED': 'fully realised',
+    'st_UNKNOWN': 'unknown',
+    'sttip_OPEN': 'Project number starts with A — at Gluth a project that was not carried through. This comes from the numbering convention, not from the folder tree.',
+    'sttip_REALISED': 'Project number starts with R — at Gluth a fully realised project. This comes from the numbering convention, not from the folder tree.',
+    'sttip_UNKNOWN': 'Project number starts with neither A nor R — type cannot be determined.',
+    ph_tip: 'The furthest phase folder that actually contains documents. Empty folders do not count.',
+    ph_none: 'no documents',
+
+    review_pick: 'Pick a project from the project list.',
+    btn_correct: 'Correct…', btn_approve: 'Approve',
+    tab_summary: 'Summary', tab_checklist: 'Checklist', tab_overview: 'Overview',
+    src_none: 'No source open',
+    src_hint: 'Click a citation number in the draft to open its source here.',
+    src_loading: 'Loading source…', src_page: 'Page ',
+    building: k => 'Building "' + k + '" from the corpus…',
+    derived: '(derived)', nothing: 'Nothing found.',
+    cit_line: (n, r) => n + (n === 1 ? ' citation · ' : ' citations · ') + r + ' % carry a source · no LLM',
+    conf_line: (n, r, m) => n + (n === 1 ? ' extracted item · ' : ' extracted items · ') + r + ' % carry a source · ' + m,
+    conf_pill: c => 'Evidence density: ' + c,
+    approved_msg: (a, p) => 'Approved ' + a + ' for ' + p,
+    approve_fail: 'Approve failed — service unreachable',
+    opened_src: (n, f) => 'Opened source [' + n + '] — ' + f,
+
+    search_h: 'Precedent search across past projects',
+    search_sub: 'Answers "have we ever built something like this?" in plain language, over the locally indexed project holdings.',
+    search_sub_live: (p, c) => 'Searches ' + p + ' projects with ' + c + ' indexed passages — entirely on this machine.',
+    search_ph: 'Describe the machine… e.g. cut hoses to length, grease, crimp fittings both ends',
+    btn_search: 'Search', samples: 'Examples:',
+    search_empty: 'Type a description to search the holdings',
+    searching: 'Searching…',
+    search_hits: (n, m) => n + (n === 1 ? ' comparable project · ' : ' comparable projects · ') + m + ' · local index',
+    search_none: 'No matching evidence found.',
+    rel: 'relevance ', open_project: 'Open project →', matching: 'Matching passages',
+    offline: 'Offline',
+
+    d_multi: 'Multiple versions on file', d_multi_sub: 'which one was the offer written against?',
+    d_stale: 'Stale references', d_stale_sub: 'cites an older version than we hold',
+    d_notheld: 'Cited but not held', d_notheld_sub: 'no local copy — changes go unnoticed',
+    d_h: 'Reference and version drift',
+    d_h_sub: 'Rule-based — versions parsed from file names and explicit in-document statements. No language model involved.',
+    d_all: 'All findings', d_multi_o: 'Multiple versions', d_stale_o: 'Stale reference', d_notheld_o: 'Not held',
+    d_none: 'No findings.',
+    'dk_MULTIPLE_VERSIONS': 'Multiple versions', 'dk_STALE_REFERENCE': 'Stale reference', 'dk_NOT_HELD': 'Not held',
+    sd_h: 'What changed between two versions',
+    sd_h_sub: 'Numeric changes only — dimensions, tolerances, cycle times. The changes that cost money.',
+    sd_diffing: 'Diffing…', sd_similar: ' similar', sd_added: ' added',
+    sd_removed: ' removed', sd_changed: ' changed', sd_numeric: 'numeric changes only',
+    sd_nonum: 'No numeric changes.', sd_nopairs: 'no version pairs detected',
+
+    c_logged: 'Corrections logged', c_logged_sub: 'stored in SQLite',
+    c_top: 'Most-corrected field', c_nodata: 'no data yet',
+    c_edits: n => n + ' entries',
+    c_drift: 'Tagged as version issue', c_drift_sub: 'signal that the knowledge base is stale',
+    c_activity: 'Review activity', c_activity_sub: 'in this workspace',
+    c_reviews: (a, r) => a + ' approved / ' + r + ' reviews',
+    c_h: 'Correction log — human feedback',
+    c_tag_all: 'All categories', c_tag_drift: 'Version issue',
+    c_tag_content: 'Content fix', c_tag_ok: 'Minor',
+    c_th_time: 'Timestamp', c_th_proj: 'Project / Artifact', c_th_field: 'Field',
+    c_th_action: 'What was corrected', c_th_tag: 'Category',
+    c_none: 'No corrections logged yet. Open a draft and press "Correct…".',
+    c_saved: 'Correction saved to the log.', c_save_fail: 'Save failed — service unreachable',
+
+    k_extract: 'Extraction rate', k_measured: 'measured',
+    k_cite: 'Claims carrying a source', k_target: 'Target 100 %',
+    k_cite_sub: 'verbatim — nothing generated',
+    k_chunks: 'Indexed passages', k_ocr: 'Files needing OCR', k_backlog: 'backlog',
+    k_files: (ok, tot) => ok + ' of ' + tot + ' content files',
+    k_projchars: (p, m) => p + ' projects · ' + m + 'M characters',
+    k_mode: m => m + ' · no LLM',
+    k_mix: 'Evidence density of drafts',
+    k_mix_sub: 'Computed from item count and citation rate — not a model opinion.',
+    k_fmt: 'Extraction coverage by format',
+    'cf_High': 'high', 'cf_Medium': 'medium', 'cf_Low': 'low',
+    k_of: ' of ',
+    k_thr: (a, c, d) => a + ' approved · ' + c + ' corrections · ' + d + ' version issues',
+
+    t_h: 'Bid / No-bid decision', t_h_sub: 'A human decision. The system records it; it never makes it.',
+    t_project: 'Project', t_assign: 'Owner', t_bid: 'BID (GO)', t_nobid: 'NO-BID',
+    t_c1: 'Machine fits the standard plant footprint',
+    t_c2: 'Customer budget intent confirmed (not a pricing check)',
+    t_c3: 'Assembly know-how aligns with company expertise',
+    t_c4: 'Engineering capacity available in the next 2 weeks',
+    t_r_h: 'Ownership and decisions',
+    t_r_sub: 'Ownership is derived from the customer. Decisions are stored permanently.',
+    t_th_cust: 'Customer', t_th_owner: 'Owner', t_th_proj: 'Project', t_th_dec: 'Decision',
+    t_undecided: 'not decided',
+    t_msg: (p, v, n) => p + ' marked ' + v + ' · ' + n + ' of 4 criteria met',
+    t_fail: 'Decision failed — service unreachable',
+
+    m_corr_h: 'Record correction', m_corr_field: 'Field / section affected',
+    m_corr_what: 'What was corrected', m_corr_tag: 'Category',
+    m_corr_ph: 'e.g. draft cited a superseded norm revision — corrected to the current version',
+    m_corr_default: 'Norm reference',
+    btn_cancel: 'Cancel', btn_save: 'Save',
+    m_new_h: 'Record a project by hand',
+    m_new_note: 'This only creates a row in the project list. No document is read — documents enter the corpus exclusively through extract.py.',
+    m_new_no: 'Project number', m_new_cust: 'Customer', m_new_title: 'Machine / Scope',
+    m_new_save: 'Create',
+    m_new_need_no: 'Please enter a project number.',
+    m_new_exists: 'That project number already exists.',
+    m_new_ok: p => 'Project ' + p + ' created (no documents).',
+
+    api_h: 'Local service unreachable',
+    api_hint: 'Start the server with:'
+}
+};
+
+let LANG = 'de';
+try { LANG = localStorage.getItem('gluth-lang') || 'de'; } catch (e) { LANG = 'de'; }
+if (!I18N[LANG]) LANG = 'de';
+
+function t(key) {
+    const v = I18N[LANG][key];
+    return v === undefined ? key : v;
+}
+function tf(key, ...args) {
+    const v = I18N[LANG][key];
+    return typeof v === 'function' ? v(...args) : (v === undefined ? key : v);
+}
+/* Translate, but fall back to the raw value from the API when no label exists.
+   Guards against unknown status values left over in an older workspace.db. */
+function tOr(key, fallback) {
+    const v = I18N[LANG][key];
+    return typeof v === 'string' ? v : fallback;
+}
+
+function setLang(lang) {
+    if (!I18N[lang]) return;
+    LANG = lang;
+    try { localStorage.setItem('gluth-lang', lang); } catch (e) { /* private mode */ }
+    applyLang();
+}
+
+function applyLang() {
+    const dict = I18N[LANG];
+    document.documentElement.lang = LANG;
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const v = dict[el.dataset.i18n];
+        if (typeof v === 'string') el.textContent = v;
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        const v = dict[el.dataset.i18nPh];
+        if (typeof v === 'string') el.placeholder = v;
+    });
+
+    document.getElementById('lang-de').classList.toggle('active', LANG === 'de');
+    document.getElementById('lang-en').classList.toggle('active', LANG === 'en');
+
+    const active = document.querySelector('.screen-view:not(.hidden)');
+    setText('page-title', t('pt_' + (active ? active.id.replace('screen-', '') : 'queue')));
+
+    renderSampleChips();
+    if (!document.getElementById('corr-field').value) {
+        document.getElementById('corr-field').value = t('m_corr_default');
+    }
+    rerenderActive();
+}
+
+function rerenderActive() {
+    const active = document.querySelector('.screen-view:not(.hidden)');
+    if (!active) return;
+    populateFilters();
+    renderQueueTable();
+    refreshIndexStatus();
+    switch (active.id) {
+        case 'screen-review':      if (currentDoc) { renderDraft(); renderReviewBanner(); } break;
+        case 'screen-drift':       renderDrift(); break;
+        case 'screen-corrections': renderCorrectionLog(); break;
+        case 'screen-dashboard':   renderDashboard(); break;
+        case 'screen-triage':      renderTriage(); break;
+        case 'screen-search':      if (document.getElementById('precedent-search-input').value.trim().length >= 2) runPrecedentSearch(); break;
+    }
+}
+
+/* ------------------------------------------------------------------ state */
+let inquiries = [];
+let currentProject = null;
+let currentArtifact = 'summary';
+let currentDoc = null;
+let searchTimer = null;
+
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g,
+    m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+
+async function api(path, opts) {
+    const r = await fetch(API + path, opts);
+    if (!r.ok) {
+        const err = new Error('HTTP ' + r.status);
+        err.status = r.status;
+        throw err;
+    }
+    return r.json();
+}
+
+function apiDown(container, err) {
+    if (!container) return;
+    container.innerHTML = '<div class="bg-white border rounded-lg p-5 text-slate-600">'
+        + '<div class="font-semibold text-slate-900 mb-1">' + esc(t('api_h')) + '</div>'
+        + '<div class="text-[11px] mb-2">' + esc((err && err.message) || '') + '</div>'
+        + '<div class="text-[11px] mb-1">' + esc(t('api_hint')) + '</div>'
+        + '<code class="text-[11px] block bg-slate-50 p-2 rounded border">.venv\\Scripts\\python -m uvicorn serve:app --port 8800</code>'
+        + '</div>';
+}
+
+const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+function setBar(id, pct) { const el = document.getElementById(id); if (el) el.style.width = pct + '%'; }
+
+/* ------------------------------------------------------------- navigation */
+function switchScreen(screenId) {
+    document.querySelectorAll('.screen-view').forEach(s => s.classList.add('hidden'));
+    const target = document.getElementById(screenId);
+    if (target) target.classList.remove('hidden');
+    document.querySelectorAll('.side-link').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById('nav-' + screenId);
+    if (btn) btn.classList.add('active');
+    setText('page-title', t('pt_' + screenId.replace('screen-', '')));
+
+    if (screenId === 'screen-drift') renderDrift();
+    if (screenId === 'screen-corrections') renderCorrectionLog();
+    if (screenId === 'screen-dashboard') renderDashboard();
+    if (screenId === 'screen-triage') renderTriage();
+    if (screenId === 'screen-review' && !currentDoc) loadReview(currentProject);
+}
+
+/* ------------------------------------------------------------------ queue */
+const ownerLabel = i => {
+    const c = (i.assigned_to || '').trim();
+    return c ? t('sales_prefix') + c : t('unassigned');
+};
+
+async function loadInquiries() {
+    try {
+        const d = await api('/api/inquiries');
+        inquiries = d.inquiries;
+        if (!currentProject && inquiries.length) currentProject = inquiries[0].project_no;
+        populateFilters();
+        renderQueueTable();
+    } catch (e) {
+        apiDown(document.getElementById('queue-tbody').parentElement.parentElement, e);
+    }
+}
+
+function populateFilters() {
+    const sel = document.getElementById('filter-customer');
+    const keep = sel.value || 'ALL';
+    const customers = [...new Set(inquiries.map(i => i.customer).filter(Boolean))].sort();
+    sel.innerHTML = '<option value="ALL">' + esc(t('f_all_cust')) + '</option>'
+        + customers.map(c => '<option value="' + esc(c) + '">' + esc(c) + '</option>').join('');
+    sel.value = keep;
+
+    const dl = document.getElementById('customer-list');
+    if (dl) dl.innerHTML = customers.map(c => '<option value="' + esc(c) + '"></option>').join('');
+}
+
+/* Project outcome comes from Gluth's own A / R number prefix — see
+   store.project_status(). It is not inferred from the folder tree. */
+const STATUS_STYLE = {
+    'REALISED': 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    'OPEN': 'bg-amber-100 text-amber-900 border-amber-300',
+    'UNKNOWN': 'bg-slate-100 text-slate-700 border-slate-200'
+};
+
+function renderQueueTable() {
+    const tb = document.getElementById('queue-tbody');
+    if (!tb) return;
+    const cust = document.getElementById('filter-customer').value;
+    const stat = document.getElementById('filter-status').value;
+
+    let rows = inquiries.filter(i =>
+        (cust === 'ALL' || i.customer === cust) &&
+        (stat === 'ALL' || i.status === stat));
+
+    const rank = i => (i.status === 'OPEN') ? 0 : 1;
+    rows.sort((a, b) => rank(a) - rank(b) || a.project_no.localeCompare(b.project_no));
+
+    tb.innerHTML = rows.map(i => {
+        const label = tOr('st_' + i.status, i.status);
+        const tip = tOr('sttip_' + i.status, '');
+        return '<tr class="hover:bg-slate-50 cursor-pointer transition" onclick="openInquiryInReview(' + JSON.stringify(i.project_no).replace(/"/g, '&quot;') + ')">'
+            + '<td class="p-3"><div class="font-bold text-slate-950">' + esc(i.project_no) + '</div>'
+            + '<div class="text-[11px] text-slate-500">' + esc(i.customer || '—') + '</div></td>'
+            + '<td class="p-3"><div class="font-semibold text-slate-900">' + esc(i.project_name || '—') + '</div>'
+            + '<div class="text-[10px] text-slate-500">' + esc(t('q_owner') + ownerLabel(i)) + '</div></td>'
+            + '<td class="p-3 text-[11px] text-slate-600" title="' + esc(t('ph_tip')) + '">'
+            + esc(i.stage || t('ph_none')) + '</td>'
+            + '<td class="p-3 text-[11px] text-slate-600">' + esc(tf('q_docs', i.doc_count, (i.chunk_count || 0).toLocaleString())) + '</td>'
+            + '<td class="p-3"><span title="' + esc(tip) + '" class="status-pill text-[10px] px-2 py-0.5 rounded border '
+            + (STATUS_STYLE[i.status] || 'bg-slate-100 border-slate-200') + '">' + esc(label) + '</span></td>'
+            + '<td class="p-3 text-right"><span class="text-slate-400 text-xs">' + esc(t('q_open')) + '</span></td></tr>';
+    }).join('') || '<tr><td colspan="6" class="p-6 text-center text-slate-400">' + esc(t('q_none')) + '</td></tr>';
+
+    setText('queue-count-badge', tf('q_count', rows.length));
+}
+
+/* ----------------------------------------------------------------- review */
+function openInquiryInReview(projNo) {
+    currentProject = projNo;
+    currentDoc = null;
+    switchScreen('screen-review');
+    loadReview(projNo);
+}
+
+async function loadReview(projNo) {
+    if (!projNo) return;
+    const pane = document.getElementById('draft-pane');
+    pane.innerHTML = '<div class="p-6 text-slate-400 text-xs">' + esc(tf('building', t('tab_' + tabKey(currentArtifact)))) + '</div>';
+    try {
+        currentDoc = await api('/api/artifact/' + encodeURIComponent(projNo) + '?kind=' + currentArtifact);
+        renderDraft();
+        renderReviewBanner();
+    } catch (e) { apiDown(pane, e); }
+}
+
+const tabKey = k => ({ summary: 'summary', checkliste: 'checklist', uebersicht: 'overview' }[k] || 'summary');
+
+function renderReviewBanner() {
+    const d = currentDoc; if (!d) return;
+    const inq = inquiries.find(i => i.project_no === d.project_no) || {};
+    const low = d.confidence === 'Low';
+    const b = document.getElementById('review-banner');
+    b.className = 'p-3 rounded-lg border flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-2xs '
+        + (low ? 'bg-amber-50 border-amber-200' : 'bg-white border-slate-200');
+    setText('review-project-no', d.project_no);
+    setText('review-machine-title', inq.project_name || '');
+    const pill = document.getElementById('review-confidence-pill');
+    pill.textContent = tf('conf_pill', tOr('cf_' + d.confidence, d.confidence));
+    pill.className = 'text-[10px] font-bold px-2 py-0.5 rounded border '
+        + (low ? 'bg-amber-200 text-amber-900 border-amber-300' : 'bg-emerald-100 text-emerald-800 border-emerald-300');
+    setText('review-confidence-desc', tf('conf_line', d.item_count, d.citation_rate, d.method));
+}
+
+function switchDraftTab(kind) {
+    currentArtifact = kind;
+    document.querySelectorAll('.draft-tab-btn').forEach(b => {
+        const on = b.dataset.kind === kind;
+        b.className = 'draft-tab-btn px-3 py-1 rounded text-[11px] ' + (on
+            ? 'font-bold bg-white border border-slate-300 text-slate-900 shadow-2xs'
+            : 'font-medium text-slate-600');
+    });
+    loadReview(currentProject);
+}
+
+function renderDraft() {
+    const d = currentDoc;
+    if (!d) return;
+    const pane = document.getElementById('draft-pane');
+    let n = 0;
+    pane.innerHTML = d.sections.map(sec => {
+        const items = sec.items.map(it => {
+            const hasSrc = !!it.source_path;
+            const cid = hasSrc ? ++n : null;
+            const chip = hasSrc
+                ? '<button class="citation-chip" onclick=\'showSource(' + JSON.stringify(it.source_path) + ',' + JSON.stringify(String(it.page || '')) + ',' + cid + ')\'>[' + cid + ']</button>'
+                : '<span class="text-[10px] text-slate-400 ml-1">' + esc(t('derived')) + '</span>';
+            const src = hasSrc
+                ? '<div class="text-[10px] text-slate-400 mt-0.5">' + esc(it.filename)
+                  + (it.page ? ' · ' + esc(t('src_page')) + esc(it.page) : '')
+                  + (it.phase ? ' · ' + esc(it.phase) : '') + '</div>'
+                : '';
+            return '<li class="mb-2 leading-relaxed">' + esc(it.text) + ' ' + chip + src + '</li>';
+        }).join('') || '<li class="text-slate-400 italic">' + esc(t('nothing')) + '</li>';
+        return '<div class="mb-4"><h3 class="font-bold text-xs text-slate-950 uppercase tracking-wide border-b border-slate-100 pb-1 mb-2">'
+            + esc(sec.title) + (sec.flag ? ' <span class="text-amber-600">&#9873;</span>' : '') + '</h3>'
+            + (sec.note ? '<div class="text-[10px] text-slate-400 mb-1.5">' + esc(sec.note) + '</div>' : '')
+            + '<ul class="text-xs text-slate-800 pl-4 list-disc">' + items + '</ul></div>';
+    }).join('');
+    setText('citation-count', tf('cit_line', n, d.citation_rate));
+}
+
+async function showSource(path, page, cid) {
+    const box = document.getElementById('source-viewer-body');
+    setText('source-doc-name', path.split(/[\\/]/).pop());
+    setText('source-page-indicator', page ? t('src_page') + page : '—');
+    box.innerHTML = '<div class="p-4 text-slate-400 text-xs">' + esc(t('src_loading')) + '</div>';
+    try {
+        const s = await api('/api/source?path=' + encodeURIComponent(path) + '&page=' + encodeURIComponent(page || ''));
+        box.innerHTML = '<div class="bg-white p-5 rounded border border-slate-300 space-y-3 min-h-[400px]">'
+            + '<div class="text-[9px] text-slate-400 uppercase tracking-widest border-b pb-1">'
+            + esc(s.project_no) + ' · ' + esc(s.phase || '') + ' · [' + cid + ']</div>'
+            + '<div class="font-bold text-sm text-slate-900">' + esc(s.filename) + '</div>'
+            + '<div class="text-[10px] text-slate-500">' + esc(s.source_path)
+            + (page ? ' · ' + esc(t('src_page')) + esc(page) : '') + '</div>'
+            + s.passages.map(p => '<div class="source-highlight text-[11px] leading-relaxed">' + esc(p) + '</div>').join('')
+            + '</div>';
+        triggerToast(tf('opened_src', cid, s.filename));
+    } catch (e) { apiDown(box, e); }
+}
+
+async function approveDraft() {
+    if (!currentDoc) return;
+    try {
+        await api('/api/approve', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project_no: currentDoc.project_no, artifact: currentDoc.artifact })
+        });
+        triggerToast(tf('approved_msg', currentDoc.artifact, currentDoc.project_no));
+        loadInquiries();
+    } catch (e) { triggerToast(t('approve_fail')); }
+}
+
+/* ------------------------------------------------------- correction modal */
+function openCorrectionModal() {
+    if (currentDoc) setText('corr-project', currentDoc.project_no);
+    const f = document.getElementById('corr-field');
+    if (!f.value) f.value = t('m_corr_default');
+    document.getElementById('modal-correct').classList.remove('hidden');
+}
+function closeCorrectionModal() {
+    document.getElementById('modal-correct').classList.add('hidden');
+}
+
+async function saveCorrection() {
+    const payload = {
+        project_no: currentDoc ? currentDoc.project_no : currentProject,
+        artifact: currentDoc ? currentDoc.artifact : '',
+        field: document.getElementById('corr-field').value,
+        action: document.getElementById('corr-action').value,
+        route_tag: document.getElementById('corr-tag').value,
+        reviewer: 'local'
+    };
+    try {
+        await api('/api/correction', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        closeCorrectionModal();
+        document.getElementById('corr-action').value = '';
+        triggerToast(t('c_saved'));
+        renderCorrectionLog();
+        loadInquiries();
+    } catch (e) { triggerToast(t('c_save_fail')); }
+}
+
+/* ------------------------------------------------------ new inquiry modal */
+function openNewInquiryModal() {
+    populateFilters();
+    document.getElementById('modal-new-inquiry').classList.remove('hidden');
+    document.getElementById('new-proj-no').focus();
+}
+function closeNewInquiryModal() {
+    document.getElementById('modal-new-inquiry').classList.add('hidden');
+}
+
+async function submitNewInquiry() {
+    const project_no = document.getElementById('new-proj-no').value.trim();
+    if (!project_no) { triggerToast(t('m_new_need_no')); return; }
+    const payload = {
+        project_no: project_no,
+        customer: document.getElementById('new-proj-customer').value.trim(),
+        project_name: document.getElementById('new-proj-title').value.trim()
+    };
+    try {
+        await api('/api/inquiry', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        closeNewInquiryModal();
+        document.getElementById('new-proj-no').value = '';
+        document.getElementById('new-proj-customer').value = '';
+        document.getElementById('new-proj-title').value = '';
+        triggerToast(tf('m_new_ok', project_no));
+        await loadInquiries();
+    } catch (e) {
+        triggerToast(e.status === 409 ? t('m_new_exists') : t('c_save_fail'));
+    }
+}
+
+/* -------------------------------------------------------- correction log */
+const TAG_STYLE = {
+    Drift: 'bg-amber-100 text-amber-900 border border-amber-300 font-bold',
+    Content: 'bg-slate-100 text-slate-700 border',
+    OK: 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+};
+const TAG_LABEL = { Drift: 'c_tag_drift', Content: 'c_tag_content', OK: 'c_tag_ok' };
+
+async function renderCorrectionLog() {
+    const tb = document.getElementById('corrections-tbody');
+    if (!tb) return;
+    const tag = document.getElementById('filter-route-tag').value;
+    try {
+        const d = await api('/api/corrections?route_tag=' + encodeURIComponent(tag));
+        tb.innerHTML = d.corrections.map(c =>
+            '<tr class="' + (c.route_tag === 'Drift' ? 'bg-amber-50/40' : '') + ' hover:bg-slate-50">'
+            + '<td class="p-3 text-slate-500">' + esc((c.created_at || '').replace('T', ' ').slice(0, 16)) + '</td>'
+            + '<td class="p-3 font-bold text-slate-900">' + esc(c.project_no)
+            + '<div class="text-[10px] font-normal text-slate-400">' + esc(c.artifact || '') + '</div></td>'
+            + '<td class="p-3 text-slate-800">' + esc(c.field) + '</td>'
+            + '<td class="p-3 text-slate-700">' + esc(c.action) + '</td>'
+            + '<td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] ' + (TAG_STYLE[c.route_tag] || 'bg-slate-100') + '">'
+            + esc(tOr(TAG_LABEL[c.route_tag], c.route_tag)) + '</span></td></tr>'
+        ).join('') || '<tr><td colspan="5" class="p-6 text-center text-slate-400">' + esc(t('c_none')) + '</td></tr>';
+
+        const s = d.stats;
+        setText('stat-corrections-count', s.corrections);
+        setText('stat-top-field', s.top_field);
+        setText('stat-top-field-sub', s.top_field_count ? tf('c_edits', s.top_field_count) : t('c_nodata'));
+        setText('stat-drift-count', s.drift);
+        setText('stat-reviews', tf('c_reviews', s.approved, s.reviews));
+    } catch (e) { apiDown(tb.parentElement.parentElement, e); }
+}
+
+/* -------------------------------------------------------------- dashboard */
+async function renderDashboard() {
+    try {
+        const d = await api('/api/stats');
+        const c = d.corpus, q = d.quality, r = d.review;
+
+        setText('kpi-extract', c.extraction_rate + ' %');
+        setBar('kpi-extract-bar', c.extraction_rate);
+        setText('kpi-extract-sub', tf('k_files', c.extracted_ok, c.content_files));
+
+        setText('kpi-citation', q.citation_rate + ' %');
+        setBar('kpi-citation-bar', q.citation_rate);
+
+        setText('kpi-corpus', (c.chunks || 0).toLocaleString());
+        setText('kpi-corpus-sub', tf('k_projchars', c.projects, (c.total_chars / 1e6).toFixed(1)));
+
+        setText('kpi-ocr', c.needs_ocr);
+        setText('kpi-ocr-sub', tf('k_mode', String(q.mode).toUpperCase()));
+
+        const mix = d.confidence_mix, tot = Object.values(mix).reduce((a, b) => a + b, 0) || 1;
+        const COL = { High: 'var(--success)', Medium: 'var(--warning)', Low: 'var(--destructive)' };
+        document.getElementById('confidence-mix').innerHTML =
+            ['High', 'Medium', 'Low'].filter(k => mix[k]).map(k =>
+                '<div><div class="flex justify-between text-[11px] text-slate-600 mb-1">'
+                + '<span>' + esc(t('cf_' + k)) + '</span><span class="font-bold">' + mix[k] + esc(t('k_of')) + tot + '</span></div>'
+                + '<div class="w-full bg-slate-100 h-2.5 rounded"><div class="h-full rounded" style="width:'
+                + (100 * mix[k] / tot) + '%;background:' + COL[k] + '"></div></div></div>').join('');
+
+        document.getElementById('format-coverage').innerHTML =
+            Object.entries(d.by_format).slice(0, 8).map(([ext, v]) =>
+                '<div class="flex items-center gap-2 text-[11px]"><span class="w-14 text-slate-600">' + esc(ext) + '</span>'
+                + '<div class="flex-1 bg-slate-100 h-2 rounded"><div class="h-full rounded" style="width:' + v.rate
+                + '%;background:' + (v.rate === 100 ? 'var(--success)' : v.rate >= 50 ? 'var(--warning)' : 'var(--destructive)')
+                + '"></div></div><span class="w-16 text-right text-slate-500">' + v.ok + '/' + v.total + '</span></div>').join('');
+
+        setText('review-throughput', tf('k_thr', r.approved, r.corrections, r.drift));
+    } catch (e) { apiDown(document.getElementById('confidence-mix'), e); }
+}
+
+/* ----------------------------------------------------------------- triage */
+function renderTriage() {
+    const sel = document.getElementById('triage-project');
+    if (sel) {
+        const keep = sel.value;
+        sel.innerHTML = inquiries.map(i =>
+            '<option value="' + esc(i.project_no) + '">' + esc(i.project_no) + ' — ' + esc(i.project_name || '') + '</option>').join('');
+        if (keep) sel.value = keep;
+    }
+    const asg = document.getElementById('triage-assign');
+    if (asg) {
+        const keep = asg.value;
+        const owners = [...new Set(inquiries.map(i => (i.assigned_to || '').trim()).filter(Boolean))].sort();
+        asg.innerHTML = owners.map(o => '<option value="' + esc(o) + '">' + esc(t('sales_prefix') + o) + '</option>').join('')
+            + '<option value="">' + esc(t('unassigned')) + '</option>';
+        if (keep) asg.value = keep;
+    }
+    const tb = document.getElementById('routing-tbody');
+    if (tb) {
+        tb.innerHTML = inquiries.map(i =>
+            '<tr class="hover:bg-slate-50"><td class="p-3 font-semibold">' + esc(i.customer || '—') + '</td>'
+            + '<td class="p-3">' + esc(ownerLabel(i)) + '</td>'
+            + '<td class="p-3 text-slate-500">' + esc(i.project_no) + '</td>'
+            + '<td class="p-3">' + (i.verdict
+                ? '<span class="text-[10px] px-2 py-0.5 rounded border ' + (i.verdict === 'BID'
+                    ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                    : 'bg-rose-50 text-rose-700 border-rose-200') + '">' + esc(i.verdict) + '</span>'
+                : '<span class="text-slate-400 text-[11px]">' + esc(t('t_undecided')) + '</span>')
+            + '</td></tr>').join('');
+    }
+}
+
+async function submitDecision(verdict) {
+    const project_no = document.getElementById('triage-project').value;
+    const criteria = [...document.querySelectorAll('.triage-crit')].filter(c => c.checked).map(c => c.dataset.label);
+    const assigned_to = document.getElementById('triage-assign').value;
+    try {
+        await api('/api/decision', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project_no, verdict, criteria, assigned_to })
+        });
+        triggerToast(tf('t_msg', project_no, verdict, criteria.length));
+        await loadInquiries();
+        renderTriage();
+    } catch (e) { triggerToast(t('t_fail')); }
+}
+
+/* ------------------------------------------------------------------ drift */
+const DRIFT_STYLE = {
+    MULTIPLE_VERSIONS: { icon: '&#9873;', cls: 'border-rose-200 bg-rose-50/40', tag: 'bg-rose-50 text-rose-700 border-rose-200' },
+    STALE_REFERENCE:   { icon: '&#9888;', cls: 'border-amber-200 bg-amber-50/40', tag: 'bg-amber-100 text-amber-900 border-amber-300' },
+    NOT_HELD:          { icon: '&#9675;', cls: 'border-slate-200', tag: 'bg-slate-100 text-slate-700 border-slate-200' }
+};
+
+async function renderDrift() {
+    const list = document.getElementById('drift-list');
+    if (!list) return;
+    const kind = document.getElementById('filter-drift-kind').value;
+    try {
+        const all = await api('/api/drift');
+        const k = all.by_kind || {};
+        setText('drift-multi', k.MULTIPLE_VERSIONS || 0);
+        setText('drift-stale', k.STALE_REFERENCE || 0);
+        setText('drift-notheld', k.NOT_HELD || 0);
+        setText('drift-badge', (k.MULTIPLE_VERSIONS || 0) + (k.STALE_REFERENCE || 0));
+
+        const shown = kind ? all.findings.filter(f => f.kind === kind) : all.findings;
+        list.innerHTML = shown.map(f => {
+            const st = DRIFT_STYLE[f.kind] || DRIFT_STYLE.NOT_HELD;
+            const files = (f.files || []).slice(0, 4).map(fl => {
+                const folder = fl.path ? fl.path.split('/').slice(1, -1).join('/') : '';
+                return '<div class="text-[10px] text-slate-500 pl-4">&#9492;&#9472; <span class="text-slate-700">'
+                    + esc(fl.filename) + '</span>' + (fl.page ? ' ' + esc(t('src_page')) + esc(fl.page) : '')
+                    + (folder ? ' <span class="text-slate-400">(' + esc(folder) + ')</span>' : '') + '</div>';
+            }).join('');
+            return '<div class="border rounded-lg p-3 ' + st.cls + '">'
+                + '<div class="flex items-center gap-2 mb-1 flex-wrap"><span>' + st.icon + '</span>'
+                + '<span class="text-[10px] px-2 py-0.5 rounded border ' + st.tag + '">' + esc(tOr('dk_' + f.kind, f.kind)) + '</span>'
+                + '<span class="font-bold text-xs text-slate-900">' + esc(f.doc_id) + '</span>'
+                + '<span class="text-[10px] text-slate-400 ml-auto">' + esc(f.project_no || '') + '</span></div>'
+                + '<div class="text-[11px] text-slate-700 mb-1.5 pl-6">' + esc(f.detail) + '</div>' + files + '</div>';
+        }).join('') || '<div class="p-4 text-center text-slate-400 text-xs">' + esc(t('d_none')) + '</div>';
+    } catch (e) { apiDown(list, e); }
+    loadSpecDiffPairs();
+}
+
+let specPairs = [];
+async function loadSpecDiffPairs() {
+    const sel = document.getElementById('specdiff-pair');
+    if (!sel || sel.dataset.filled) return;
+    try {
+        const d = await api('/api/specdiff/pairs');
+        specPairs = d.pairs || [];
+        sel.innerHTML = specPairs.map((p, i) =>
+            '<option value="' + i + '">' + esc(p.a) + '  &#8596;  ' + esc(p.b) + '</option>').join('')
+            || '<option>' + esc(t('sd_nopairs')) + '</option>';
+        sel.dataset.filled = '1';
+        if (specPairs.length) renderSpecDiff();
+    } catch (e) { /* drift list already reports API state */ }
+}
+
+async function renderSpecDiff() {
+    const sel = document.getElementById('specdiff-pair');
+    const box = document.getElementById('specdiff-result');
+    if (!sel || !box) return;
+    const pair = specPairs[sel.value];
+    if (!pair) return;
+    box.innerHTML = '<div class="text-slate-400 text-xs p-2">' + esc(t('sd_diffing')) + '</div>';
+    try {
+        const d = await api('/api/specdiff?a=' + encodeURIComponent(pair.a) + '&b=' + encodeURIComponent(pair.b) + '&numeric=true&limit=12');
+        const changed = (d.changed || []).map(c =>
+            '<div class="border border-slate-200 rounded p-2 mb-1.5">'
+            + c.from.map(x => '<div class="text-[11px] text-rose-700">&minus; ' + esc(x) + '</div>').join('')
+            + c.to.map(x => '<div class="text-[11px] text-emerald-700">+ ' + esc(x) + '</div>').join('')
+            + '</div>').join('');
+        box.innerHTML = '<div class="flex flex-wrap gap-3 text-[11px] text-slate-600 pb-1">'
+            + '<span><b>' + d.similarity + ' %</b>' + esc(t('sd_similar')) + '</span>'
+            + '<span class="text-emerald-700">+' + d.counts.added + esc(t('sd_added')) + '</span>'
+            + '<span class="text-rose-700">&minus;' + d.counts.removed + esc(t('sd_removed')) + '</span>'
+            + '<span class="text-amber-700">~' + d.counts.changed + esc(t('sd_changed')) + '</span>'
+            + '<span class="text-slate-400 ml-auto">' + esc(t('sd_numeric')) + '</span></div>'
+            + (changed || '<div class="text-slate-400 text-xs p-2">' + esc(t('sd_nonum')) + '</div>');
+    } catch (e) { apiDown(box, e); }
+}
+
+/* ------------------------------------------------------- precedent search */
+function renderSampleChips() {
+    const box = document.getElementById('sample-chips');
+    if (!box) return;
+    box.innerHTML = DEMO_QUERIES.map((s, i) =>
+        '<button onclick="fillSearch(' + i + ')" class="bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded text-slate-700">'
+        + esc(s.label) + '</button>').join('');
+}
+
+function fillSearch(i) {
+    document.getElementById('precedent-search-input').value = DEMO_QUERIES[i].q;
+    runPrecedentSearch();
+}
+
+function executePrecedentSearch() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(runPrecedentSearch, 220);
+}
+
+async function runPrecedentSearch() {
+    const q = document.getElementById('precedent-search-input').value.trim();
+    const container = document.getElementById('precedent-results-container');
+    if (q.length < 2) {
+        container.innerHTML = '';
+        setText('search-results-count', t('search_empty'));
+        return;
+    }
+    setText('search-results-count', t('searching'));
+    let data;
+    try {
+        data = await api('/api/search?q=' + encodeURIComponent(q) + '&mode=auto&limit=6');
+    } catch (e) { apiDown(container, e); setText('search-results-count', t('offline')); return; }
+
+    const projects = data.projects || [];
+    setText('search-results-count', projects.length
+        ? tf('search_hits', projects.length, String(data.mode).toUpperCase())
+        : t('search_none'));
+
+    container.innerHTML = projects.map(p =>
+        '<div class="bg-white border border-slate-200 rounded-lg p-4 shadow-2xs space-y-2 hover:border-slate-400 transition">'
+        + '<div class="flex justify-between items-start gap-3"><div>'
+        + '<div class="flex items-center flex-wrap gap-2">'
+        + '<span class="font-bold text-xs bg-slate-950 text-white px-2 py-0.5 rounded">' + esc(p.project_no || '—') + '</span>'
+        + '<span class="font-bold text-xs text-slate-900">' + esc(p.customer || '') + '</span>'
+        + '<span class="text-[10px] text-slate-400">' + esc(t('rel')) + (p.score || 0).toFixed(3) + '</span></div>'
+        + '<h4 class="font-bold text-xs text-slate-800 mt-1">' + esc(p.project_name || '') + '</h4></div>'
+        + '<button onclick="openInquiryInReview(' + JSON.stringify(p.project_no || '').replace(/"/g, '&quot;') + ')" '
+        + 'class="bg-slate-100 hover:bg-slate-950 hover:text-white text-slate-800 text-[10px] px-2.5 py-1 rounded transition border border-slate-300 flex-none">'
+        + esc(t('open_project')) + '</button></div>'
+        + '<div class="text-[10px] text-slate-400 uppercase tracking-wide pt-1">' + esc(t('matching')) + '</div>'
+        + (p.hits || []).map(h =>
+            '<div class="p-2 bg-slate-50 rounded border border-slate-100 text-[11px] text-slate-600 mb-1.5">'
+            + '<div class="flex items-center gap-2 mb-1 flex-wrap">'
+            + '<span class="font-semibold text-slate-900">' + esc(h.filename) + '</span>'
+            + (h.page ? '<span class="text-slate-400">' + esc(t('src_page')) + esc(h.page) + '</span>' : '')
+            + (h.phase ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 border">' + esc(h.phase) + '</span>' : '')
+            + '</div><div class="leading-relaxed">' + esc(h.snippet) + '</div></div>').join('')
+        + '</div>').join('');
+}
+
+/* ------------------------------------------------------------------- misc */
+async function refreshIndexStatus() {
+    try {
+        const h = await api('/api/health');
+        const chunks = (h.chunks || 0).toLocaleString();
+        const mode = String(h.mode).toUpperCase();
+        setText('index-status', chunks + ' · ' + mode + (h.tier1_dense ? ' + Embeddings' : ''));
+        setText('runtime-text', '127.0.0.1 · ' + chunks + ' · ' + mode + ' · ' + t('no_llm'));
+        setText('search-sub', tf('search_sub_live', (h.projects || []).length, chunks));
+    } catch (e) {
+        setText('index-status', t('runtime_offline'));
+        setText('runtime-text', t('runtime_offline'));
+    }
+}
+
+function triggerToast(msg) {
+    const el = document.getElementById('toast');
+    setText('toast-msg', msg);
+    el.classList.remove('hidden');
+    clearTimeout(window._toastT);
+    window._toastT = setTimeout(() => el.classList.add('hidden'), 3200);
+}
+function hideToast() { document.getElementById('toast').classList.add('hidden'); }
+
+window.onload = async function () {
+    applyLang();
+    await loadInquiries();
+    refreshIndexStatus();
+    renderDrift();
+    renderCorrectionLog();
+    switchScreen('screen-queue');
+};
+</script>
+</body>
+</html>

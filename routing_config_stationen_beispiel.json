@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "name": "BEISPIEL Stationsliste - so sieht die Datei aus, wenn Herr Genau seine Stationen genannt hat",
+  "hinweis": "Diese Datei zeigt den Umbau von Fachdisziplinen auf Stationen. An router.py wurde dafuer keine Zeile geaendert. Aufruf: python requirements.py --config routing_config_stationen_beispiel.json",
+  "default": "Station unbekannt",
+  "buckets": [
+    {
+      "key": "SAFE",
+      "label": "Sicherheit (stationsuebergreifend)",
+      "priority": 95,
+      "weight": 1.5,
+      "header_patterns": ["sicherheit", "arbeitsschutz"],
+      "keywords": [
+        "Not-Halt", "Nothalt", "Not-Aus", "Schutzeinrichtung", "Lichtvorhang",
+        "Schutztuer", "Schutztür", "Performance Level", "Kategorie 3",
+        "Risikobeurteilung", "Maschinenrichtlinie", "DIN EN ISO 13849"
+      ]
+    },
+    {
+      "key": "ST10",
+      "label": "Station 10 - Zufuehrung",
+      "priority": 70,
+      "weight": 1.0,
+      "header_patterns": ["station\\s*10", "zuf[uü]hrung", "beschickung"],
+      "keywords": [
+        "Zufuehrung", "Zuführung", "Magazin", "Vereinzeler", "Wendelfoerderer",
+        "Wendelförderer", "Ruettler", "Rüttler", "Bandfoerderer", "Bandförderer",
+        "Palette", "Werkstuecktraeger", "Werkstückträger", "Beschickung"
+      ]
+    },
+    {
+      "key": "ST20",
+      "label": "Station 20 - Greifer und Handhabung",
+      "priority": 70,
+      "weight": 1.0,
+      "header_patterns": ["station\\s*20", "greifer", "handhabung"],
+      "keywords": [
+        "Greifer", "Greifzange", "Backen", "Sauger", "Vakuumsauger",
+        "Handhabung", "Portal", "Linearachse", "Roboter", "Schwenkeinheit",
+        "Aufnahmedorn", "Umsetzer"
+      ]
+    },
+    {
+      "key": "ST30",
+      "label": "Station 30 - Fuegen und Verschrauben",
+      "priority": 70,
+      "weight": 1.0,
+      "header_patterns": ["station\\s*30", "f[uü]gen", "verschrauben", "montage"],
+      "keywords": [
+        "Schrauber", "Schraubfall", "Drehmoment", "Anzugsmoment", "Einpressen",
+        "Presse", "Fuegekraft", "Fügekraft", "Nietung", "Clinchen",
+        "Verschraubung", "Gewindefurcher"
+      ]
+    },
+    {
+      "key": "ST40",
+      "label": "Station 40 - Pruefen und Ausschleusen",
+      "priority": 70,
+      "weight": 1.0,
+      "header_patterns": ["station\\s*40", "pr[uü]f", "ausschleus", "qualit[aä]t"],
+      "keywords": [
+        "Pruefung", "Prüfung", "Pruefstation", "Prüfstation", "Kamera",
+        "Bildverarbeitung", "Dichtheitspruefung", "Dichtheitsprüfung",
+        "Messtaster", "Gutteil", "Schlechtteil", "Ausschleusung",
+        "Rueckweisung", "Rückweisung", "Kennzeichnung", "Lasermarkierung"
+      ]
+    }
+  ]
+}
